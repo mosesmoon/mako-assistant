@@ -4,6 +4,8 @@
 # The AppImage bundles a relocatable CPython (python-build-standalone, via uv)
 # and PyQt6 wheels, so it runs without any Python/Qt packages on the host.
 set -euo pipefail
+# Python run during the build must not leave bytecode (it records build paths).
+export PYTHONDONTWRITEBYTECODE=1
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 build="$here/build"
@@ -33,6 +35,11 @@ uv python find "$python_version" >/dev/null 2>&1 || uv python install "$python_v
 python_home="$(readlink -f "$(dirname "$(dirname "$(readlink -f "$(uv python find "$python_version")")")")")"
 mkdir -p "$appdir/usr/python"
 cp -a "$python_home/." "$appdir/usr/python/"
+# uv records its install location in text files such as _sysconfigdata*.py
+# (build-time variables only); neutralise it so no build path ships.
+grep -rlIF "$python_home" "$appdir/usr/python" 2>/dev/null | while read -r f; do
+    sed -i "s|$python_home|/usr/python|g" "$f"
+done
 py="$appdir/usr/python/bin/python3"
 prefix="$("$py" -c 'import sys; print(sys.prefix)')"
 if [[ -L "$appdir/usr/python" || "$(readlink -f "$prefix")" != "$(readlink -f "$appdir/usr/python")" ]]; then
@@ -73,9 +80,10 @@ find "$site/PyQt6" -maxdepth 1 -name '*.pyi' -delete
 rm -rf "$appdir/usr/python/lib/python3"*/{test,idlelib,tkinter,turtledemo,ensurepip,lib2to3} \
        "$appdir/usr/python/lib/"{libtcl*,libtk*,tcl*,tk*,itcl*,thread*} \
        "$appdir/usr/python/include" "$appdir/usr/python/share" \
-       "$site/pip" "$site/pip-"*
+       "$site/pip" "$site/pip-"* "$site/bin"  # bin: PyQt6 dev tools with build-path shebangs
 find "$appdir" -name '__pycache__' -prune -exec rm -rf {} +
-"$py" -m compileall -q "$site/mako_assistant" >/dev/null
+# Strip the build directory from the recorded source paths.
+"$py" -m compileall -q -s "$appdir" -p / "$site/mako_assistant" >/dev/null
 
 echo "==> 寫入 AppRun / desktop / icon"
 cat > "$appdir/AppRun" <<'APPRUN'
@@ -106,7 +114,17 @@ mkdir -p "$appdir/usr/share/icons/hicolor/256x256/apps"
 cp "$here/packaging/mako-assistant.png" "$appdir/usr/share/icons/hicolor/256x256/apps/"
 
 echo "==> 自我檢查"
-QT_QPA_PLATFORM=offscreen "$appdir/AppRun" --self-test
+# No bytecode from this run: it would record the build machine's paths.
+PYTHONDONTWRITEBYTECODE=1 QT_QPA_PLATFORM=offscreen "$appdir/AppRun" --self-test
+
+echo "==> 檢查是否含有建置機器的路徑"
+for leak in "$HOME" "$here"; do
+    if grep -r -a -l -F "$leak" "$appdir" >/dev/null 2>&1; then
+        echo "錯誤：AppDir 內含建置機器的路徑 $leak，停止打包：" >&2
+        grep -r -a -l -F "$leak" "$appdir" | head -5 >&2
+        exit 1
+    fi
+done
 
 tool="$build/appimagetool-x86_64.AppImage"
 if [[ ! -x "$tool" ]]; then
