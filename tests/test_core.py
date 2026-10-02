@@ -134,7 +134,12 @@ class ServiceTest(unittest.TestCase):
         running = mock.patch("mako_assistant.steam.SteamInstallation.is_running", return_value=False)
         running.start()
         self.addCleanup(running.stop)
-        self.service = AssistantService(self.steam, self.mako, FakeCef(), root / "state.json")
+        self.launcher = root / "bin" / "mako-launch"
+        self.launcher.parent.mkdir()
+        self.launcher.write_text("#!/bin/sh\n")
+        self.launcher.chmod(0o755)
+        self.service = AssistantService(self.steam, self.mako, FakeCef(), root / "state.json",
+                                        mako_launch=self.launcher)
 
     def tearDown(self):
         self.tmp.cleanup()
@@ -255,6 +260,32 @@ class ServiceTest(unittest.TestCase):
         self.assertIn("Other-Game", message)
         # Another game's profile is left untouched.
         self.assertEqual(config.profile_for_app(999).processes, ["witcher3.exe"])
+
+
+    def _assert_nothing_written(self, localconfig_before):
+        localconfig = self.steam / "userdata/42/config/localconfig.vdf"
+        self.assertEqual(localconfig.read_text(), localconfig_before)
+        self.assertFalse(localconfig.with_name("localconfig.vdf.mako-assistant.bak").exists())
+        self.assertEqual(self.service.state["managed"], {})
+
+    def test_install_refuses_without_mako_launch(self):
+        self.service.scan()
+        before = (self.steam / "userdata/42/config/localconfig.vdf").read_text()
+        conf_before = (self.mako / "conf.toml").read_text()
+        self.launcher.unlink()
+        with self.assertRaises(FileNotFoundError):
+            self.service.install(292030)
+        self._assert_nothing_written(before)
+        self.assertEqual((self.mako / "conf.toml").read_text(), conf_before)
+        self.assertFalse(self.service.entries()[0].has_mako)
+
+    def test_install_refuses_without_mako_config(self):
+        self.service.scan()
+        before = (self.steam / "userdata/42/config/localconfig.vdf").read_text()
+        (self.mako / "conf.toml").unlink()  # MAKO installed, but MAKO UI never opened
+        with self.assertRaises(FileNotFoundError):
+            self.service.install(292030)
+        self._assert_nothing_written(before)
 
 
 if __name__ == "__main__":

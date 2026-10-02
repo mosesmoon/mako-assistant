@@ -632,8 +632,10 @@ class MainWindow(QMainWindow):
         def work():
             if not self.service.shutdown_steam():
                 raise RuntimeError(tr("err_steam_timeout"))
-            result = fn(*args)
-            self.service.start_steam()
+            try:
+                result = fn(*args)
+            finally:
+                self.service.start_steam()  # reopen Steam even if applying failed
             return result + "\n" + tr("log_steam_restarted")
 
         def done(result):

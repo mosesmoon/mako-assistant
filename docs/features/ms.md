@@ -114,6 +114,7 @@ Kali pertama dibuka, bahasa mengikut bahasa sistem. Anda boleh menukarnya pada b
 - `conf.toml` dan `localconfig.vdf` Steam disandarkan (`*.mako-assistant.bak`) sebelum setiap perubahan.
 - Selepas menulis `conf.toml`, alat ini menyemaknya dengan `mako-cli validate`. Jika MAKO menolaknya, fail asal dipulihkan secara automatik.
 - `localconfig.vdf` tidak pernah disunting secara terus semasa Steam sedang berjalan.
+- Apabila anda klik "Pasang Mako FG", alat ini terlebih dahulu menyemak bahawa MAKO Renderer sudah dipasang (fail `~/.local/bin/mako-launch` wujud) dan MAKO UI sudah mencipta tetapannya. Jika salah satu tiada, tiada apa-apa yang diubah dan anda diminta memasang MAKO dahulu.
 
 ## Memasang Pembantu MAKO
 

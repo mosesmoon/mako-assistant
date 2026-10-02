@@ -114,6 +114,7 @@ MAKO アシスタントを開いたままゲームを起動すると、ゲーム
 - `conf.toml` と Steam の `localconfig.vdf` は、変更前に必ずバックアップ（`*.mako-assistant.bak`）を取ります。
 - `conf.toml` を書き込んだあと `mako-cli validate` で検証し、MAKO が受け付けなければ自動で元に戻します。
 - Steam の起動中に `localconfig.vdf` を直接編集することはありません。
+- 「Mako FG を導入」をクリックすると、まず MAKO Renderer がインストール済み（`~/.local/bin/mako-launch` がある）で、MAKO UI が設定を作成済みかを確認します。どちらかが欠けていれば何も変更せず、先に MAKO をインストールするよう案内します。
 
 ## MAKO アシスタントのインストール
 

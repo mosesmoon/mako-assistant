@@ -114,6 +114,7 @@ Al primo avvio la lingua segue quella di sistema. Puoi cambiarla in qualsiasi mo
 - Prima di ogni modifica viene fatto un backup di `conf.toml` e del `localconfig.vdf` di Steam (`*.mako-assistant.bak`).
 - Dopo aver scritto `conf.toml`, lo strumento lo verifica con `mako-cli validate`. Se MAKO lo rifiuta, il file originale viene ripristinato automaticamente.
 - `localconfig.vdf` non viene mai modificato direttamente mentre Steam è aperto.
+- Quando fai clic su «Installa Mako FG», lo strumento verifica prima che MAKO Renderer sia installato (esiste `~/.local/bin/mako-launch`) e che MAKO UI abbia creato le sue impostazioni. Se manca uno dei due, non viene modificato nulla e ti viene chiesto di installare prima MAKO.
 
 ## Installare l’Assistente MAKO
 

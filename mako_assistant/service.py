@@ -70,9 +70,11 @@ class AssistantService:
     def __init__(self, steam_root: Optional[Path] = None,
                  mako_dir: Optional[Path] = None,
                  cef: Optional[SteamCef] = None,
-                 state_file: Optional[Path] = None) -> None:
+                 state_file: Optional[Path] = None,
+                 mako_launch: Optional[Path] = None) -> None:
         self._steam_root = steam_root
         self._mako_dir = mako_dir
+        self._mako_launch = mako_launch
         self.cef = cef or SteamCef()
         self.state_file = state_file or state_path()
         self.state = self._load_state()
@@ -102,6 +104,20 @@ class AssistantService:
 
     def steam(self) -> SteamInstallation:
         return SteamInstallation(self._steam_root)
+
+    def mako_launch_path(self) -> Path:
+        return self._mako_launch or Path(os.path.expanduser(lo.MAKO_LAUNCH))
+
+    def require_mako(self) -> MakoConfig:
+        """Confirm MAKO Renderer is installed and set up before touching Steam.
+
+        The launch option points at mako-launch, so injecting it without MAKO
+        installed would leave the game unable to start.
+        """
+        launcher = self.mako_launch_path()
+        if not (launcher.is_file() and os.access(launcher, os.X_OK)):
+            raise FileNotFoundError(tr("svc_no_launcher", path=launcher))
+        return self.mako()
 
     def mako(self) -> MakoConfig:
         config = MakoConfig(self._mako_dir)
@@ -267,6 +283,7 @@ class AssistantService:
     # ---- actions ----------------------------------------------------------------
 
     def install(self, app_id: int) -> str:
+        config = self.require_mako()  # before any change: nothing is written if MAKO is missing
         steam = self.steam()
         game = self._game(steam, app_id)
         paths = detect_executables(game.install_dir, game.appinfo)
@@ -278,7 +295,6 @@ class AssistantService:
         message = tr("svc_injected", name=localized_name(game.name, game.names))
         profile_name = None
         if names:
-            config = self.mako()
             profile_name, created = config.upsert_game(app_id, game.name, names)
             released = config.release_default_matches(app_id)
             config.save()

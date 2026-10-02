@@ -114,6 +114,7 @@ MAKO 助手开着时启动游戏，一检测到 MAKO 已经在游戏中工作，
 - 修改 `conf.toml` 和 Steam 的 `localconfig.vdf` 之前，都会先备份（`*.mako-assistant.bak`）。
 - 写入 `conf.toml` 后，会用 `mako-cli validate` 验证。MAKO 不接受的话，会自动还原。
 - Steam 运行时，绝不直接修改 `localconfig.vdf`。
+- 点击“安装 Mako FG”时，会先确认 MAKO Renderer 已安装（`~/.local/bin/mako-launch` 存在）且 MAKO UI 已创建配置。任一项不满足，就不会修改任何设置，并提示你先安装 MAKO。
 
 ## 安装 MAKO 助手
 

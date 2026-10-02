@@ -114,6 +114,7 @@ Lần mở đầu tiên, ngôn ngữ được chọn theo ngôn ngữ hệ thố
 - `conf.toml` và `localconfig.vdf` của Steam luôn được sao lưu (`*.mako-assistant.bak`) trước mỗi lần thay đổi.
 - Sau khi ghi `conf.toml`, công cụ kiểm tra bằng `mako-cli validate`. Nếu MAKO không chấp nhận, tệp gốc sẽ được tự động khôi phục.
 - Không bao giờ sửa trực tiếp `localconfig.vdf` khi Steam đang chạy.
+- Khi bạn bấm "Cài Mako FG", công cụ trước tiên kiểm tra MAKO Renderer đã được cài (có tệp `~/.local/bin/mako-launch`) và MAKO UI đã tạo cấu hình. Nếu thiếu một trong hai, sẽ không có gì bị thay đổi và bạn được nhắc cài MAKO trước.
 
 ## Cài đặt Trợ lý MAKO
 
