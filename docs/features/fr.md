@@ -120,10 +120,18 @@ Au premier lancement, la langue suit celle du système. Vous pouvez la changer �
 
 **AppImage (recommandé)** : Python et Qt sont inclus, rien d’autre n’est à installer.
 
+1. Téléchargez `MAKO_Assistant-<version>-x86_64.AppImage` depuis la page [Releases](https://github.com/mosesmoon/mako-assistant/releases).
+2. Rendez-le exécutable : clic droit sur le fichier → Propriétés → Permissions, puis activez « Autoriser l’exécution du fichier comme un programme » (le libellé varie selon le gestionnaire de fichiers).
+3. Double-cliquez dessus pour ouvrir l’Assistant MAKO.
+
+Ou dans un terminal :
+
 ```bash
 chmod +x MAKO_Assistant-*-x86_64.AppImage
 ./MAKO_Assistant-*-x86_64.AppImage
 ```
+
+S’il ne démarre pas, il manque peut-être FUSE sur votre système ; lancez-le plutôt avec `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run`.
 
 **Depuis les sources** : nécessite Python 3.11 ou plus récent et PyQt6 (Arch : `sudo pacman -S python-pyqt6`).
 

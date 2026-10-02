@@ -120,10 +120,18 @@ MAKO 助手开着时启动游戏，一检测到 MAKO 已经在游戏中工作，
 
 **AppImage（推荐）**：已内置 Python 和 Qt，无需另外安装。
 
+1. 到 [Releases](https://github.com/mosesmoon/mako-assistant/releases) 页面下载 `MAKO_Assistant-<版本>-x86_64.AppImage`。
+2. 设为可执行：右键点击文件 →“属性”→“权限”，勾选“允许作为程序执行”（不同文件管理器的用词略有不同）。
+3. 双击即可打开 MAKO 助手。
+
+也可以在终端中运行：
+
 ```bash
 chmod +x MAKO_Assistant-*-x86_64.AppImage
 ./MAKO_Assistant-*-x86_64.AppImage
 ```
+
+如果无法打开，可能是系统缺少 FUSE，可改用 `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` 运行。
 
 **从源代码运行**：需要 Python 3.11 及以上版本和 PyQt6（Arch：`sudo pacman -S python-pyqt6`）。
 

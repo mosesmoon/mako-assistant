@@ -120,10 +120,18 @@ Lần mở đầu tiên, ngôn ngữ được chọn theo ngôn ngữ hệ thố
 
 **AppImage (khuyên dùng)**: đã có sẵn Python và Qt, không cần cài thêm gì.
 
+1. Tải `MAKO_Assistant-<phiên bản>-x86_64.AppImage` từ trang [Releases](https://github.com/mosesmoon/mako-assistant/releases).
+2. Cho phép chạy tệp: nhấp chuột phải vào tệp → Thuộc tính → Quyền, rồi bật "Cho phép chạy tệp như một chương trình" (tên gọi tùy trình quản lý tệp).
+3. Nhấp đúp để mở Trợ lý MAKO.
+
+Hoặc chạy trong terminal:
+
 ```bash
 chmod +x MAKO_Assistant-*-x86_64.AppImage
 ./MAKO_Assistant-*-x86_64.AppImage
 ```
+
+Nếu không mở được, có thể hệ thống thiếu FUSE; hãy chạy bằng `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run`.
 
 **Chạy từ mã nguồn**: cần Python 3.11 trở lên và PyQt6 (Arch: `sudo pacman -S python-pyqt6`).
 

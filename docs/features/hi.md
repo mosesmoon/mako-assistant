@@ -120,10 +120,18 @@ Steam लॉन्च विकल्प सिर्फ़ शुरू हो�
 
 **AppImage (अनुशंसित)**: इसमें Python और Qt पहले से शामिल हैं, कुछ और इंस्टॉल करने की ज़रूरत नहीं।
 
+1. [Releases](https://github.com/mosesmoon/mako-assistant/releases) पेज से `MAKO_Assistant-<संस्करण>-x86_64.AppImage` डाउनलोड करें।
+2. इसे चलाने योग्य बनाएँ: फ़ाइल पर राइट-क्लिक करें → Properties → Permissions, और "फ़ाइल को प्रोग्राम के रूप में चलाने दें" चालू करें (फ़ाइल मैनेजर के अनुसार नाम अलग हो सकता है)।
+3. MAKO सहायक खोलने के लिए उस पर डबल-क्लिक करें।
+
+या टर्मिनल में:
+
 ```bash
 chmod +x MAKO_Assistant-*-x86_64.AppImage
 ./MAKO_Assistant-*-x86_64.AppImage
 ```
+
+अगर यह न खुले, तो हो सकता है आपके सिस्टम में FUSE न हो; तब इसे `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` से चलाएँ।
 
 **सोर्स कोड से चलाना**: Python 3.11 या नया और PyQt6 ज़रूरी है (Arch: `sudo pacman -S python-pyqt6`)।
 

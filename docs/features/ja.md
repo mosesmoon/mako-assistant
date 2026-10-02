@@ -120,10 +120,18 @@ MAKO アシスタントを開いたままゲームを起動すると、ゲーム
 
 **AppImage（推奨）**：Python と Qt を同梱しているので、ほかに何もインストールする必要はありません。
 
+1. [Releases](https://github.com/mosesmoon/mako-assistant/releases) ページから `MAKO_Assistant-<バージョン>-x86_64.AppImage` をダウンロードします。
+2. 実行可能にします：ファイルを右クリック →「プロパティ」→「アクセス権」で「プログラムとして実行可能」をオンにします（表記はファイルマネージャーによって異なります）。
+3. ダブルクリックすると MAKO アシスタントが開きます。
+
+ターミナルから実行することもできます：
+
 ```bash
 chmod +x MAKO_Assistant-*-x86_64.AppImage
 ./MAKO_Assistant-*-x86_64.AppImage
 ```
+
+起動しない場合は、システムに FUSE がない可能性があります。代わりに `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` で実行してください。
 
 **ソースから実行**：Python 3.11 以降と PyQt6 が必要です（Arch：`sudo pacman -S python-pyqt6`）。
 

@@ -120,10 +120,18 @@ Steam อ่านตัวเลือกการเปิดเกมเฉ�
 
 **AppImage (แนะนำ)**: มี Python และ Qt มาในตัว ไม่ต้องติดตั้งอะไรเพิ่ม
 
+1. ดาวน์โหลด `MAKO_Assistant-<เวอร์ชัน>-x86_64.AppImage` จากหน้า [Releases](https://github.com/mosesmoon/mako-assistant/releases)
+2. ตั้งให้รันได้: คลิกขวาที่ไฟล์ → คุณสมบัติ → สิทธิ์ แล้วเปิด "อนุญาตให้รันไฟล์เป็นโปรแกรม" (ชื่อเมนูต่างกันไปตามโปรแกรมจัดการไฟล์)
+3. ดับเบิลคลิกเพื่อเปิดผู้ช่วย MAKO
+
+หรือรันในเทอร์มินัล:
+
 ```bash
 chmod +x MAKO_Assistant-*-x86_64.AppImage
 ./MAKO_Assistant-*-x86_64.AppImage
 ```
+
+ถ้าเปิดไม่ได้ ระบบอาจไม่มี FUSE ให้รันด้วย `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` แทน
 
 **รันจากซอร์สโค้ด**: ต้องใช้ Python 3.11 ขึ้นไปและ PyQt6 (Arch: `sudo pacman -S python-pyqt6`)
 

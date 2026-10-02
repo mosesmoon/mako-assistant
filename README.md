@@ -54,28 +54,45 @@ Steam reads `localconfig.vdf` only when it starts and overwrites it when it exit
 
 ### Install and run
 
+**AppImage (recommended)**: Python and Qt are included, so nothing else needs to be installed.
+
+1. Download `MAKO_Assistant-<version>-x86_64.AppImage` from the [Releases](https://github.com/mosesmoon/mako-assistant/releases) page.
+2. Make it executable: right-click the file → Properties → Permissions, and turn on "Allow executing file as program" (the wording varies by file manager).
+3. Double-click it to open MAKO Assistant.
+
+Or in a terminal:
+
 ```bash
-./install.sh        # install to ~/.local/share/mako-assistant and add a menu entry
-mako-assistant      # or run ./mako-assistant from the source folder
+chmod +x MAKO_Assistant-*-x86_64.AppImage
+./MAKO_Assistant-*-x86_64.AppImage
 ```
 
-Requirements: Python 3.11+ and PyQt6 (Arch: `sudo pacman -S python-pyqt6`).
+If it does not start, your system may be missing FUSE; run it with `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` instead.
 
-### AppImage
+**From source**: requires Python 3.11+ and PyQt6 (Arch: `sudo pacman -S python-pyqt6`).
 
 ```bash
-./build-appimage.sh   # outputs dist/MAKO_Assistant-<version>-x86_64.AppImage
+./mako-assistant    # run from the source folder
+./install.sh        # or install to ~/.local/share/mako-assistant and add a menu entry
+```
+
+The tool's own state (managed games, game list cache) is stored in `~/.config/mako-assistant/state.json`.
+
+### For developers
+
+Build the AppImage yourself (outputs `dist/MAKO_Assistant-<version>-x86_64.AppImage` and its release notes):
+
+```bash
+./build-appimage.sh
 ```
 
 The AppImage bundles a portable CPython 3.13 (uv / python-build-standalone) and a trimmed PyQt6, so the target machine needs neither Python nor Qt. Building needs `uv` and network access (PyQt6 wheel and appimagetool downloads).
 
-### Tests
+Run the tests:
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
-
-The tool's own state (managed games, game list cache) is stored in `~/.config/mako-assistant/state.json`.
 
 ---
 
@@ -129,25 +146,42 @@ Steam 只在啟動時讀取 `localconfig.vdf`，並在關閉時覆寫它，因�
 
 ### 安裝與執行
 
+**AppImage（建議）**：已內含 Python 與 Qt，不需另外安裝。
+
+1. 到 [Releases](https://github.com/mosesmoon/mako-assistant/releases) 頁面下載 `MAKO_Assistant-<版本>-x86_64.AppImage`。
+2. 設為可執行：對檔案按右鍵 →「內容」→「權限」，勾選「允許作為程式執行」（各檔案管理員的用詞略有不同）。
+3. 點兩下即可開啟 MAKO 助手。
+
+也可以在終端機執行：
+
 ```bash
-./install.sh        # 安裝到 ~/.local/share/mako-assistant，並建立選單項目
-mako-assistant      # 或直接在原始碼目錄執行 ./mako-assistant
+chmod +x MAKO_Assistant-*-x86_64.AppImage
+./MAKO_Assistant-*-x86_64.AppImage
 ```
 
-需求：Python 3.11+、PyQt6（Arch：`sudo pacman -S python-pyqt6`）。
+如果無法開啟，可能是系統缺少 FUSE，可改用 `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` 執行。
 
-### AppImage
+**從原始碼執行**：需要 Python 3.11 以上和 PyQt6（Arch：`sudo pacman -S python-pyqt6`）。
 
 ```bash
-./build-appimage.sh   # 輸出 dist/MAKO_Assistant-<版本>-x86_64.AppImage
+./mako-assistant    # 在原始碼目錄直接執行
+./install.sh        # 或安裝到 ~/.local/share/mako-assistant，並建立選單項目
+```
+
+本工具的狀態（已管理的遊戲、遊戲清單快取）存在 `~/.config/mako-assistant/state.json`。
+
+### 開發者
+
+自行打包 AppImage（輸出 `dist/MAKO_Assistant-<版本>-x86_64.AppImage` 與該版本的更新說明）：
+
+```bash
+./build-appimage.sh
 ```
 
 AppImage 內含可攜式 CPython 3.13（uv / python-build-standalone）與精簡過的 PyQt6，目標機器不需安裝 Python 或 Qt。建置需要 `uv` 與網路（下載 PyQt6 wheel 與 appimagetool）。
 
-### 測試
+執行測試：
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
-
-本工具的狀態（已管理的遊戲、遊戲清單快取）存在 `~/.config/mako-assistant/state.json`。
