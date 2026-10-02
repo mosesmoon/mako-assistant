@@ -206,5 +206,56 @@ class ServiceTest(unittest.TestCase):
         self.assertTrue(changes[0].new_paths[0].endswith("x64_new/witcher3_v2.exe"))
 
 
+    def _default_profile(self):
+        conf = tomllib.loads((self.mako / "conf.toml").read_text())
+        return next(p for p in conf["profile"] if p["name"] == "mako")
+
+    def test_install_releases_default_profile_match(self):
+        # The default profile already claims the game's executable (set in MAKO UI).
+        conf = self.mako / "conf.toml"
+        conf.write_text(conf.read_text().replace(
+            'name = "mako"\n', 'name = "mako"\nactive_in = ["witcher3.exe", "other.exe"]\n'))
+        self.service.scan()
+        message = self.service.install(292030)
+        self.assertEqual(self._default_profile()["active_in"], "other.exe")
+        entry = self.service.entries()[0]
+        from mako_assistant.i18n import tr
+        self.assertIn(tr("cfg_released_default", processes="witcher3.exe",
+                         default="mako", profile=entry.profile_name), message.splitlines())
+        self.assertEqual(entry.profile_processes, ["witcher3.exe"])
+
+    def test_sync_releases_existing_default_conflict(self):
+        self.service.scan()
+        self.service.install(292030)
+        config = MakoConfig(self.mako)
+        config.load()
+        name = config.profile_for_app(292030).name
+        next(p for p in config.profiles() if p["name"] == "mako")["active_in"] = "witcher3.exe"
+        config.save()
+
+        _, changes = self.service.scan()
+        self.assertEqual(len(changes), 1)
+        self.assertEqual(changes[0].released, ["witcher3.exe"])
+        self.assertEqual(changes[0].profile, name)
+        self.assertFalse(changes[0].paths_changed)
+        self.assertNotIn("active_in", self._default_profile())
+        # Already resolved: a second scan reports nothing.
+        self.assertEqual(self.service.scan()[1], [])
+
+    def test_install_warns_when_another_game_profile_matches(self):
+        self.service.scan()
+        config = MakoConfig(self.mako)
+        config.load()
+        config.upsert_game(999, "Other Game", ["witcher3.exe"])
+        config.save()
+        message = self.service.install(292030)
+        config.load()
+        self.assertEqual(config.shared_with_other_profiles(292030),
+                         [("Other-Game", ["witcher3.exe"])])
+        self.assertIn("Other-Game", message)
+        # Another game's profile is left untouched.
+        self.assertEqual(config.profile_for_app(999).processes, ["witcher3.exe"])
+
+
 if __name__ == "__main__":
     unittest.main()

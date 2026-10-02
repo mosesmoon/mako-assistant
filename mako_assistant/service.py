@@ -13,7 +13,7 @@ from typing import Callable, Optional
 from . import launch_options as lo
 from .executables import detect_executables, process_names
 from .i18n import localized_name, tr
-from .mako_config import MakoConfig
+from .mako_config import DEFAULT_PROFILE_NAME, MakoConfig
 from .steam import SteamGame, SteamInstallation
 from .steam_cef import CefError, SteamCef
 
@@ -58,6 +58,12 @@ class SyncChange:
     after: list[str]
     old_paths: list[str] = field(default_factory=list)
     new_paths: list[str] = field(default_factory=list)
+    profile: str = ""
+    released: list[str] = field(default_factory=list)  # removed from the default profile
+
+    @property
+    def paths_changed(self) -> bool:
+        return self.before != self.after or self.old_paths != self.new_paths
 
 
 class AssistantService:
@@ -235,11 +241,16 @@ class AssistantService:
                 name, _ = config.upsert_game(game.app_id, game.name, names)
                 record["profile"] = name
                 dirty = True
-            after = config.profile_for_app(game.app_id).processes
-            if before != after or record.get("executables") != paths:
-                changes.append(SyncChange(
-                    game.app_id, localized_name(game.name, game.names), before, after,
-                    list(record.get("executables") or []), paths))
+            after_profile = config.profile_for_app(game.app_id)
+            after = after_profile.processes
+            released = config.release_default_matches(game.app_id)
+            dirty = dirty or bool(released)
+            change = SyncChange(
+                game.app_id, localized_name(game.name, game.names), before, after,
+                list(record.get("executables") or []), paths,
+                profile=after_profile.name, released=released)
+            if change.paths_changed or released:
+                changes.append(change)
             record["executables"] = paths
             record["install_dir"] = str(game.install_dir)
         if dirty:
@@ -269,10 +280,17 @@ class AssistantService:
         if names:
             config = self.mako()
             profile_name, created = config.upsert_game(app_id, game.name, names)
+            released = config.release_default_matches(app_id)
             config.save()
             key = "svc_profile_created" if created else "svc_profile_updated"
             processes = ", ".join(config.profile_for_app(app_id).processes)
             message += "\n" + tr(key, profile=profile_name, processes=processes)
+            if released:
+                message += "\n" + tr("cfg_released_default", processes=", ".join(released),
+                                      default=DEFAULT_PROFILE_NAME, profile=profile_name)
+            for other, shared in config.shared_with_other_profiles(app_id):
+                message += "\n" + tr("cfg_shared_process", processes=", ".join(shared),
+                                      other=other)
         else:
             message += "\n" + tr("svc_no_exe")
 

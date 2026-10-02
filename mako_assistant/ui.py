@@ -25,6 +25,7 @@ from PyQt6.QtWidgets import (
 from . import __version__, i18n, overlay
 from .i18n import tr
 from .runtime import RunningGame, describe, detect_running
+from .mako_config import DEFAULT_PROFILE_NAME
 from .service import AssistantService, GameEntry, SteamMustCloseError, SyncChange
 
 THUMB_W, THUMB_H = 138, 64
@@ -404,13 +405,17 @@ class MainWindow(QMainWindow):
 
     def _report_sync(self, changes: list[SyncChange]) -> None:
         for change in changes:
-            self.write_log(tr("log_path_updated", name=change.name))
-            if change.before != change.after:
-                self.write_log(tr("log_processes", before=", ".join(change.before) or "—",
-                                  after=", ".join(change.after)))
-            for path in change.new_paths:
-                if path not in change.old_paths:
-                    self.write_log(f"    + {path}")
+            if change.paths_changed:
+                self.write_log(tr("log_path_updated", name=change.name))
+                if change.before != change.after:
+                    self.write_log(tr("log_processes", before=", ".join(change.before) or "—",
+                                      after=", ".join(change.after)))
+                for path in change.new_paths:
+                    if path not in change.old_paths:
+                        self.write_log(f"    + {path}")
+            if change.released:
+                self.write_log(tr("cfg_released_default", processes=", ".join(change.released),
+                                  default=DEFAULT_PROFILE_NAME, profile=change.profile))
 
     def _update_steam_pill(self, running: bool, live: bool) -> None:
         key = "steam_off" if not running else "steam_live" if live else "steam_must_close"

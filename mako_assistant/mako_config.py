@@ -275,6 +275,22 @@ class MakoConfig:
                 return name
         return None
 
+    def shared_with_other_profiles(self, app_id: int) -> list[tuple[str, list[str]]]:
+        """Other non-default profiles that also match one of this game's processes."""
+        game = self.profile_for_app(app_id)
+        if game is None:
+            return []
+        owned = {p.casefold() for p in game.processes}
+        shared = []
+        for profile in self.profiles():
+            name = str(profile.get("name", ""))
+            if name in (game.name, DEFAULT_PROFILE_NAME):
+                continue
+            overlap = [p for p in processes_of(profile) if p.casefold() in owned]
+            if overlap:
+                shared.append((name, overlap))
+        return shared
+
     # ---- mutations (call save() afterwards) ----
 
     def upsert_game(self, app_id: int, display_name: str, processes: list[str]) -> tuple[str, bool]:
@@ -323,6 +339,30 @@ class MakoConfig:
             "steam_app_id": str(app_id),
         }
         return name, created
+
+    def release_default_matches(self, app_id: int) -> list[str]:
+        """Drop the game's processes from the default profile's ``active_in``.
+
+        The game's own profile starts as a copy of the default one, so once it
+        exists the default should no longer claim the same executable; two
+        profiles matching one process leave MAKO's choice undefined. Returns
+        the names removed from the default profile.
+        """
+        game = self.profile_for_app(app_id)
+        default = self._profile(DEFAULT_PROFILE_NAME)
+        if game is None or default is None or game.name == DEFAULT_PROFILE_NAME:
+            return []
+        owned = {p.casefold() for p in game.processes}
+        current = processes_of(default)
+        released = [p for p in current if p.casefold() in owned]
+        if not released:
+            return []
+        kept = [p for p in current if p.casefold() not in owned]
+        if kept:
+            default["active_in"] = _active_in_value(kept)
+        else:
+            default.pop("active_in", None)
+        return released
 
     def remove_game(self, app_id: int) -> Optional[str]:
         existing = self.profile_for_app(app_id)

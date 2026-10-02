@@ -8,6 +8,7 @@
 - **安裝 Mako FG**
   - 在 Steam 啟動選項注入 `~/.local/bin/mako-launch %command%`（保留原有的環境變數與參數，例如 `FOO=1 %command%` → `FOO=1 ~/.local/bin/mako-launch %command%`）。
   - 從 `appinfo.vdf` 偵測遊戲實際執行檔（含啟動器→真正的遊戲 exe、Unreal `*-Shipping.exe`），以 MAKO 預設 profile（`mako`）為範本，在 `~/.config/mako-render/conf.toml` 建立遊戲 profile，並寫入 `profile-metadata.json`（`kind: game`、`steam_app_id`），MAKO UI / Decky 都能辨識。
+  - 若預設 profile `mako` 的比對程式也包含這個遊戲的執行檔，會從 `mako` 移除，讓遊戲只套用自己的 profile（重新掃描時也會修正既有的重複）。若其他遊戲的 profile 也比對到同一個執行檔，只會提示、不自動修改。
 - **移除**：只從啟動選項移除 `mako-launch`；勾選「一併移除 MAKO Renderer 遊戲設定」才會刪除該遊戲的 profile。
 - **自動更新遊戲路徑**：每次重新掃描時，對「透過本工具安裝過 Mako FG」的遊戲重新偵測執行檔，更新 `active_in`；使用者在 MAKO UI 手動加入的比對程式會保留。
 - **啟動遊戲**：遊戲列表每一列都有「▶ 啟動」按鈕（透過 `steam://rungameid/<AppID>`），遊戲執行中會顯示「執行中」。
