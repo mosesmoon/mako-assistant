@@ -13,3 +13,7 @@ venv/
 .idea/
 *.swp
 .DS_Store
+
+# Local development notes (contain machine-specific details; never published)
+HANDOFF.md
+CLAUDE.md
