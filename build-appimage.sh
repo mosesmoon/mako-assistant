@@ -11,9 +11,16 @@ appdir="$build/AppDir"
 python_version="${PYTHON_VERSION:-3.13}"
 version="$(sed -n 's/^__version__ = "\(.*\)"/\1/p' "$here/mako_assistant/__init__.py")"
 output="$here/dist/MAKO_Assistant-${version}-x86_64.AppImage"
+release_notes="$here/docs/releases/${version}.md"
+notes_output="$here/dist/MAKO_Assistant-${version}-README.md"
 appimagetool_url="https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
 
 command -v uv >/dev/null || { echo "需要 uv：https://docs.astral.sh/uv/" >&2; exit 1; }
+# Every release ships with its multilingual release notes.
+[[ -f "$release_notes" ]] || {
+    echo "錯誤：找不到版本 $version 的更新說明 $release_notes（12 語系），請先撰寫再打包" >&2
+    exit 1
+}
 
 echo "==> 準備 AppDir"
 rm -rf "$appdir"
@@ -111,5 +118,13 @@ fi
 echo "==> 打包 AppImage"
 rm -f "$output"
 ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --no-appstream "$appdir" "$output"
+
+echo "==> 附上更新說明"
+{
+    cat "$release_notes"
+    printf '\n---\n\n`%s`  \nSHA-256: `%s`\n' "$(basename "$output")" "$(sha256sum "$output" | cut -d' ' -f1)"
+} > "$notes_output"
+
 echo
 echo "完成：$output ($(du -h "$output" | cut -f1))"
+echo "      $notes_output"

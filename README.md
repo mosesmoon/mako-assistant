@@ -4,6 +4,15 @@
 
 **完整功能介紹**（12 種語言）：[台灣正體中文](docs/features/zh_TW.md) · [English](docs/features/en.md) · [简体中文](docs/features/zh_CN.md) · [日本語](docs/features/ja.md) · [Deutsch](docs/features/de.md) · [Français](docs/features/fr.md) · [Español](docs/features/es.md) · [Italiano](docs/features/it.md) · [ไทย](docs/features/th.md) · [Tiếng Việt](docs/features/vi.md) · [Bahasa Melayu](docs/features/ms.md) · [हिन्दी](docs/features/hi.md)
 
+## 更新紀錄
+
+各版本的多語言更新說明在 [`docs/releases/`](docs/releases/)，打包時會自動附在 AppImage 旁（`dist/MAKO_Assistant-<版本>-README.md`）。
+
+| 版本 | 日期 | 摘要 |
+|---|---|---|
+| [1.0.1](docs/releases/1.0.1.md) | 2026-10-03 | 安裝前先檢查 MAKO 是否已安裝；修正預設 profile 與遊戲 profile 重複比對；套用失敗時也會重開 Steam；新增 12 語系功能介紹 |
+| 1.0.0 | 2026-10-02 | 首次發布 |
+
 ## 功能
 
 - **自動掃描**：第一次開啟時自動掃描所有 Steam 遊戲庫（`libraryfolders.vdf` + `appmanifest_*.acf`），之後可按「重新掃描 Steam 遊戲清單」。
