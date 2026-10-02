@@ -14,6 +14,17 @@ A desktop tool (PyQt6) that installs or removes MAKO Renderer frame generation (
 
 **Full feature guide** (12 languages): [English](docs/features/en.md) · [台灣正體中文](docs/features/zh_TW.md) · [简体中文](docs/features/zh_CN.md) · [日本語](docs/features/ja.md) · [Deutsch](docs/features/de.md) · [Français](docs/features/fr.md) · [Español](docs/features/es.md) · [Italiano](docs/features/it.md) · [ไทย](docs/features/th.md) · [Tiếng Việt](docs/features/vi.md) · [Bahasa Melayu](docs/features/ms.md) · [हिन्दी](docs/features/hi.md)
 
+### Screenshots
+
+![Main window: the first game is running and "Live MAKO features" shows what MAKO actually applied](screenshot/05-live-features.png)
+
+| | |
+|---|---|
+| ![Game list](screenshot/01-game-list.png)<br>Game list with status, MAKO profile and executable paths | ![Remove dialog](screenshot/02-remove-dialog.png)<br>Remove keeps the game's MAKO settings unless you tick the box |
+| ![Launching a game](screenshot/03-launch-game.png)<br>Launch a game straight from the list | ![Overlay](screenshot/04-overlay.png)<br>Overlay with the active MAKO features when a game starts |
+
+Game names, covers and personal paths are blurred in these screenshots.
+
 ### Changelog
 
 Multilingual release notes for each version are in [`docs/releases/`](docs/releases/). The build attaches them next to the AppImage (`dist/MAKO_Assistant-<version>-README.md`).
@@ -105,6 +116,17 @@ python3 -m unittest discover -s tests -v
 **下載**：AppImage 請到 [Releases](https://github.com/mosesmoon/mako-assistant/releases) 頁面下載。
 
 **完整功能介紹**（12 種語言）：[English](docs/features/en.md) · [台灣正體中文](docs/features/zh_TW.md) · [简体中文](docs/features/zh_CN.md) · [日本語](docs/features/ja.md) · [Deutsch](docs/features/de.md) · [Français](docs/features/fr.md) · [Español](docs/features/es.md) · [Italiano](docs/features/it.md) · [ไทย](docs/features/th.md) · [Tiếng Việt](docs/features/vi.md) · [Bahasa Melayu](docs/features/ms.md) · [हिन्दी](docs/features/hi.md)
+
+### 截圖
+
+![主畫面：第一款遊戲執行中，「執行中的 MAKO 功能」顯示 MAKO 實際套用的設定](screenshot/05-live-features.png)
+
+| | |
+|---|---|
+| ![遊戲清單](screenshot/01-game-list.png)<br>遊戲清單：狀態、MAKO 設定與執行檔路徑 | ![移除對話框](screenshot/02-remove-dialog.png)<br>移除時預設保留遊戲的 MAKO 設定 |
+| ![啟動遊戲](screenshot/03-launch-game.png)<br>直接從清單啟動遊戲 | ![浮水印](screenshot/04-overlay.png)<br>遊戲啟動時顯示目前啟用的 MAKO 功能 |
+
+截圖中的遊戲名稱、封面與個人路徑已模糊處理。
 
 ### 更新紀錄
 
