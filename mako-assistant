@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Launch MAKO 助手 (MAKO Assistant) from its source directory.
+here="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
+export PYTHONPATH="$here${PYTHONPATH:+:$PYTHONPATH}"
+exec python3 -m mako_assistant "$@"
