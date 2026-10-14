@@ -1,4 +1,4 @@
-"""PyQt6 user interface for MAKO Assistant (MAKO 助手), in UVC Studio's design language."""
+"""PyQt6 user interface for MAKO Assistant (MAKO 助手), in a Liquid Glass style."""
 
 from __future__ import annotations
 

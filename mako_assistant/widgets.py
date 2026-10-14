@@ -1,4 +1,4 @@
-"""Widgets for the UVC Studio-style interface: switch, segmented control,
+"""Widgets for the Liquid Glass style interface: switch, segmented control,
 chevron button, gradient wordmark, the per-game settings panel and game cards."""
 
 from __future__ import annotations
@@ -95,7 +95,7 @@ class Switch(QAbstractButton):
 
 
 class ChevronButton(QAbstractButton):
-    """Round expand / collapse button (UVC Studio panel chevron)."""
+    """Round expand / collapse button (panel chevron)."""
 
     def __init__(self, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)
@@ -185,7 +185,7 @@ class Segmented(QFrame):
 
 
 class Wordmark(QWidget):
-    """'MAKO Assistant' set in Onest with UVC Studio's teal → coral → purple gradient."""
+    """'MAKO Assistant' set in Onest with a teal → blue → coral gradient."""
 
     def __init__(self, text: str, parent: Optional[QWidget] = None) -> None:
         super().__init__(parent)

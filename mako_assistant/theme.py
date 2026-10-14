@@ -1,4 +1,4 @@
-"""Visual system for MAKO Assistant, following UVC Studio's design language.
+"""Visual system for MAKO Assistant, in a Liquid Glass style.
 
 Near-black ground lit by soft teal / blue / coral glows, glass panels with
 hairline borders, and a green → cyan → blue → indigo → violet gradient for every
@@ -125,7 +125,7 @@ def qcolor(name: str) -> QColor:
 
 
 def paint_backdrop(painter: QPainter, rect: QRectF) -> None:
-    """Base colour plus UVC Studio's soft teal / blue / coral glows."""
+    """Base colour plus soft teal / blue / coral glows."""
     painter.fillRect(rect, qcolor("bg"))
     strength = float(token("glow"))
     w, h = rect.width(), rect.height()
