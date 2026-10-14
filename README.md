@@ -16,14 +16,14 @@ A desktop tool (PyQt6) that installs or removes MAKO Renderer frame generation (
 
 ### Screenshots
 
-![Main window: the first game is running and "Live MAKO features" shows what MAKO actually applied](screenshot/05-live-features.png)
+![Game list in the dark theme: status, MAKO profile, live MAKO state and actions for each game](screenshot/v1.1-01-list-dark.png)
 
 | | |
 |---|---|
-| ![Game list](screenshot/01-game-list.png)<br>Game list with status, MAKO profile and executable paths | ![Remove dialog](screenshot/02-remove-dialog.png)<br>Remove keeps the game's MAKO settings unless you tick the box |
-| ![Launching a game](screenshot/03-launch-game.png)<br>Launch a game straight from the list | ![Overlay](screenshot/04-overlay.png)<br>Overlay with the active MAKO features when a game starts |
+| ![MAKO settings for one game](screenshot/v1.1-02-settings-dark.png)<br>Click the arrow on a game to adjust its MAKO settings, then Apply | ![Light theme in Traditional Chinese](screenshot/v1.1-03-settings-light-zh.png)<br>Light theme, Traditional Chinese interface |
+| ![Game list in the light theme](screenshot/v1.1-04-list-light.png)<br>Switch between Auto, Dark and Light in the toolbar | ![Overlay](screenshot/v1.0/04-overlay.png)<br>Overlay with the active MAKO features when a game starts |
 
-Game names, covers and personal paths are blurred in these screenshots. The screenshots show version 1.0.x; the 1.1 interface has a new look and a settings panel for each game.
+The game list and settings screenshots use sample games and covers. The overlay screenshot is from version 1.0; older screenshots are in [`screenshot/v1.0/`](screenshot/v1.0/).
 
 ### Changelog
 
@@ -122,14 +122,14 @@ python3 -m unittest discover -s tests -v
 
 ### 截圖
 
-![主畫面：第一款遊戲執行中，「執行中的 MAKO 功能」顯示 MAKO 實際套用的設定](screenshot/05-live-features.png)
+![深色主題的遊戲清單：每款遊戲的狀態、MAKO 設定、執行中的 MAKO 狀態與操作按鈕](screenshot/v1.1-01-list-dark.png)
 
 | | |
 |---|---|
-| ![遊戲清單](screenshot/01-game-list.png)<br>遊戲清單：狀態、MAKO 設定與執行檔路徑 | ![移除對話框](screenshot/02-remove-dialog.png)<br>移除時預設保留遊戲的 MAKO 設定 |
-| ![啟動遊戲](screenshot/03-launch-game.png)<br>直接從清單啟動遊戲 | ![浮水印](screenshot/04-overlay.png)<br>遊戲啟動時顯示目前啟用的 MAKO 功能 |
+| ![單一遊戲的 MAKO 設定](screenshot/v1.1-02-settings-dark.png)<br>按遊戲右側的箭頭調整 MAKO 設定，再按「套用」 | ![淺色主題、台灣正體中文](screenshot/v1.1-03-settings-light-zh.png)<br>淺色主題、台灣正體中文介面 |
+| ![淺色主題的遊戲清單](screenshot/v1.1-04-list-light.png)<br>在工具列切換自動、深色、淺色主題 | ![浮水印](screenshot/v1.0/04-overlay.png)<br>遊戲啟動時顯示目前啟用的 MAKO 功能 |
 
-截圖中的遊戲名稱、封面與個人路徑已模糊處理。截圖為 1.0.x 版；1.1 版換了新外觀，並加入每款遊戲的設定面板。
+遊戲清單與設定畫面的截圖使用範例遊戲與封面；浮水印截圖為 1.0 版。舊版截圖在 [`screenshot/v1.0/`](screenshot/v1.0/)。
 
 ### 更新紀錄
 
