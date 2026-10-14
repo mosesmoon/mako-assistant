@@ -80,7 +80,7 @@ Setiap baris mempunyai butang "▶ Main" yang melancarkan permainan melalui Stea
 
 ### 8. Paparan masa nyata ciri MAKO yang benar-benar digunakan
 
-Lajur "Ciri MAKO yang aktif" dikemas kini setiap 3 saat. Lajur ini menunjukkan apa yang **benar-benar digunakan** oleh MAKO dalam permainan, bukan apa yang tertulis dalam fail konfigurasi:
+Semasa permainan berjalan, kad permainan itu memaparkan ciri MAKO yang aktif, dikemas kini setiap 3 saat. Paparan ini menunjukkan apa yang **benar-benar digunakan** oleh MAKO dalam permainan, bukan apa yang tertulis dalam fail konfigurasi:
 
 - **Penjanaan bingkai**: pendarab tetap (contohnya ×2) atau mod adaptif (FPS sasaran dan pendarab maksimum), skala Flow dan mod prestasi.
 - **Penskalaan**: kaedah penskalaan dan resolusi (contohnya 1280×720 → 2560×1440), serta supersampling.
@@ -89,32 +89,54 @@ Lajur "Ciri MAKO yang aktif" dikemas kini setiap 3 saat. Lajur ini menunjukkan a
 
 Jika sesuatu permainan sudah dipasang Mako FG tetapi MAKO tidak benar-benar dimuatkan, perkara itu juga dipaparkan supaya anda mudah mengesan punca masalah.
 
-### 9. Tindanan semasa permainan bermula
+### 9. Tetapan MAKO untuk setiap permainan
+
+Setiap kad permainan mempunyai butang anak panah di hujung kanan. Klik untuk membuka **Tetapan MAKO** permainan itu betul-betul di bawahnya, dengan pilihan yang sama seperti MAKO UI:
+
+- **Penjanaan bingkai**: pendarab tetap atau mod Adaptif, Pendarab / Pendarab maksimum (0x menjeda penjanaan bingkai tanpa membuang apa-apa), skala Flow dan mod prestasi.
+- **Adaptif**: FPS sasaran, had stabil, keutamaan bingkai sebenar dan pilihan rentak (hanya dipaparkan dalam mod Adaptif).
+- **Rentak dan had**: had FPS asas, VRR Gamescope dan perlindungan kadar segar semula.
+- **Penskalaan ruang**: kaedah penskalaan, faktor skala, ketajaman dan supersampling.
+- **Keserasian**: keserasian bilangan imej swapchain.
+
+Setiap pilihan ada penerangan ringkas di bawahnya. Perubahan anda disimpan dahulu, dan panel menunjukkan berapa banyak yang belum digunakan. Klik "Guna" untuk menulisnya ke profil MAKO permainan itu sendiri, atau "Buang perubahan" untuk kembali kepada nilai asal. Kebanyakan tetapan berkuat kuasa semasa permainan berjalan; item bertanda "Mula semula" berkuat kuasa apabila permainan dimulakan seterusnya. Perubahan yang belum digunakan kekal walaupun anda mengimbas semula atau menukar bahasa.
+
+Tetapan ini tersedia untuk permainan yang mempunyai profil MAKO sendiri (selepas "Pasang Mako FG" atau "Import tetapan"). Profil lalai `mako` tidak pernah diubah di sini.
+
+### 10. Tindanan semasa permainan bermula
 
 Jika Pembantu MAKO sedang dibuka semasa anda melancarkan permainan, sebaik sahaja ia mengesan MAKO berfungsi dalam permainan, ia memaparkan ciri MAKO yang aktif di sudut kanan bawah skrin selama kira-kira 10 saat, kemudian pudar:
 
 - Ia muncul sekali bagi setiap pelancaran, tidak mengambil fokus papan kekunci atau tetikus, dan klik tetikus menembusinya.
 - Ia boleh muncul di atas permainan Proton skrin penuh.
 - Jika permainan yang dipasang Mako FG masih belum memuatkan MAKO 90 saat selepas dilancarkan, amaran akan dipaparkan sebagai ganti.
-- Anda boleh mematikannya dengan kotak semak "Tindanan semasa permainan bermula" pada bar alat.
+- Anda boleh mematikannya dengan suis "Tindanan semasa permainan bermula" pada bar alat.
 
-### 10. Carian dan penapis
+### 11. Carian dan penapis
 
 - Cari mengikut nama permainan (dalam apa-apa bahasa) atau App ID.
 - Penapis: semua permainan, Mako FG dipasang, Mako FG belum dipasang, tetapan MAKO sahaja, sedang berjalan.
 
-### 11. Dua belas bahasa antara muka
+### 12. Dua belas bahasa antara muka
 
 台灣正體中文, 简体中文, English, 日本語, Deutsch, Français, Español, Italiano, ไทย, Tiếng Việt, Bahasa Melayu, हिन्दी.
 
 Kali pertama dibuka, bahasa mengikut bahasa sistem. Anda boleh menukarnya pada bila-bila masa di penjuru kanan atas; perubahan berkuat kuasa serta-merta dan diingati.
 
-### 12. Direka untuk keselamatan
+### 13. Rupa dan tema
+
+- Antara muka menggunakan reka bentuk gelap berkesan kaca dengan aksen hijau kebiruan dan merah karang; setiap permainan dipaparkan sebagai kad dengan kulitnya.
+- "Tema" pada bar alat bertukar antara Auto (mengikut tetapan cerah atau gelap sistem), Gelap dan Cerah. Pilihan anda diingati.
+- Susun atur menyesuaikan diri dengan tetingkap sempit: butang beralih ke baris kedua dan panel tetapan menggunakan lebih sedikit lajur.
+- Mesej dikumpulkan dalam ruang "Aktiviti" di bahagian bawah tetingkap, yang boleh dikembangkan atau dikecilkan.
+
+### 14. Direka untuk keselamatan
 
 - `conf.toml` dan `localconfig.vdf` Steam disandarkan (`*.mako-assistant.bak`) sebelum setiap perubahan.
 - Selepas menulis `conf.toml`, alat ini menyemaknya dengan `mako-cli validate`. Jika MAKO menolaknya, fail asal dipulihkan secara automatik.
 - `localconfig.vdf` tidak pernah disunting secara terus semasa Steam sedang berjalan.
 - Apabila anda klik "Pasang Mako FG", alat ini terlebih dahulu menyemak bahawa MAKO Renderer sudah dipasang (fail `~/.local/bin/mako-launch` wujud) dan MAKO UI sudah mencipta tetapannya. Jika salah satu tiada, tiada apa-apa yang diubah dan anda diminta memasang MAKO dahulu.
+- Nilai daripada panel tetapan disemak dengan julat yang diterima MAKO sebelum apa-apa ditulis, ditulis hanya ke profil permainan itu sendiri, dan disemak dengan `mako-cli validate` seperti perubahan lain.
 
 ## Memasang Pembantu MAKO
 
@@ -145,7 +167,7 @@ Jika ia tidak dapat dibuka, sistem anda mungkin tiada FUSE; jalankannya dengan `
 - **Tindanan tidak dipaparkan dalam mod Permainan Steam Deck (gamescope).** Pada Steam Deck, gunakan pemalam Decky MAKO.
 - Permainan yang berjalan dalam skrin penuh eksklusif pada Wayland asli mungkin menutup tindanan.
 - Pilihan pelancaran hanya boleh diubah serta-merta melalui port klien Steam yang dibuka oleh Decky Loader (8080). Tanpa Decky, tutup Steam sebelum menggunakan perubahan, atau biarkan alat ini menutup dan membuka semula Steam.
-- Paparan ciri yang benar-benar digunakan dan metadata profil MAKO dibaca mengikut format versi MAKO semasa. Selepas kemas kini besar MAKO atau Steam, ia mungkin tidak dipaparkan buat sementara waktu (anda akan nampak "—"), tetapi pemasangan dan pembuangan tetap berfungsi.
+- Paparan ciri yang benar-benar digunakan dan metadata profil MAKO dibaca mengikut format versi MAKO semasa. Selepas kemas kini besar MAKO atau Steam, ia mungkin tidak dipaparkan buat sementara waktu, tetapi pemasangan dan pembuangan tetap berfungsi.
 - Dalam bahasa Thai, Vietnam, Melayu dan Hindi, menu klik kanan adalah dalam bahasa Inggeris (Qt tiada terjemahan rasmi untuk bahasa-bahasa ini). Steam tiada nama permainan dalam Bahasa Melayu dan Hindi, jadi kedua-dua bahasa ini sentiasa memaparkan nama asal.
 - Hanya sandaran terkini disimpan.
 
@@ -153,7 +175,7 @@ Jika ia tidak dapat dibuka, sistem anda mungkin tiada FUSE; jalankannya dengan `
 
 | Lokasi | Kandungan |
 |---|---|
-| `~/.config/mako-assistant/state.json` | Keadaan Pembantu MAKO sendiri: cache senarai permainan, permainan yang dipasang melalui alat ini, bahasa antara muka, tetapan tindanan |
+| `~/.config/mako-assistant/state.json` | Keadaan Pembantu MAKO sendiri: cache senarai permainan, permainan yang dipasang melalui alat ini, bahasa antara muka, tema, tetapan tindanan |
 | `~/.config/mako-render/conf.toml` | Tetapan MAKO Renderer (profil setiap permainan) |
 | `~/.config/mako-render/profile-metadata.json` | Metadata profil MAKO (nama permainan, Steam App ID) |
 | `<Steam>/userdata/<ID pengguna>/config/localconfig.vdf` | Pilihan pelancaran Steam |

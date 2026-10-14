@@ -1424,3 +1424,10 @@ STRINGS["hi"] = {
     "pending_swapchain": "swapchain दोबारा बनाना ज़रूरी",
     "pending_restart": "गेम दोबारा शुरू करना ज़रूरी",
 }
+
+
+# Strings for the per-game settings panel and the 2.0 interface live in their own module.
+from .i18n_settings import EXTRA as _EXTRA  # noqa: E402
+
+for _code, _table in _EXTRA.items():
+    STRINGS[_code].update(_table)

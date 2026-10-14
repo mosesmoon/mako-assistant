@@ -288,5 +288,67 @@ class ServiceTest(unittest.TestCase):
         self._assert_nothing_written(before)
 
 
+    def test_game_settings_read_and_apply(self):
+        self.service.scan()
+        self.service.install(292030)
+        settings = self.service.game_settings(292030)
+        self.assertIsNotNone(settings)
+        # Keys the game's profile lacks fall back to the default profile, then to MAKO defaults.
+        self.assertEqual(settings.values["multiplier"], 2)
+        self.assertEqual(settings.values["flow_scale"], 0.75)
+        self.assertEqual(settings.values["gamescope_vrr_mode"], "follow-steam")
+
+        message = self.service.apply_game_settings(292030, {
+            "adaptive": True, "adaptive_max_multiplier": 4, "target_fps": 120,
+            "flow_scale": 0.6, "scaling_enabled": True, "scaling_method": "ls1-performance",
+            "gamescope_vrr_mode": "off"})
+        self.assertIn(settings.profile, message)
+        conf = tomllib.loads((self.mako / "conf.toml").read_text())
+        game = next(p for p in conf["profile"] if p["name"] == settings.profile)
+        default = next(p for p in conf["profile"] if p["name"] == "mako")
+        self.assertEqual((game["adaptive"], game["adaptive_max_multiplier"], game["target_fps"]),
+                         (True, 4, 120))
+        self.assertIsInstance(game["flow_scale"], float)
+        self.assertEqual(game["scaling_method"], "ls1-performance")
+        self.assertEqual(game["active_in"], "witcher3.exe")      # untouched
+        self.assertNotIn("adaptive", default)                     # default profile untouched
+        self.assertEqual(self.service.game_settings(292030).values["target_fps"], 120)
+
+    def test_game_settings_ratio_zero_pauses_generation(self):
+        from mako_assistant import mako_settings
+        self.assertEqual(mako_settings.changes_for("multiplier", 0),
+                         {"frame_generation_enabled": False})
+        self.assertEqual(mako_settings.changes_for("multiplier", 3),
+                         {"multiplier": 3, "frame_generation_enabled": True})
+        self.service.scan()
+        self.service.install(292030)
+        self.service.apply_game_settings(292030, mako_settings.changes_for("multiplier", 0))
+        values = self.service.game_settings(292030).values
+        self.assertEqual(mako_settings.ratio_value(values, "multiplier"), 0)
+
+    def test_game_settings_reject_invalid_values_without_writing(self):
+        self.service.scan()
+        self.service.install(292030)
+        before = (self.mako / "conf.toml").read_text()
+        for bad in ({"multiplier": 6}, {"flow_scale": 0.2}, {"scaling_method": "fsr"},
+                    {"adaptive": "yes"}, {"target_fps": 9}, {"name": "x"}, {"active_in": "a.exe"},
+                    {"base_fps_cap": 1001}):
+            with self.subTest(bad=bad), self.assertRaises(ValueError):
+                self.service.apply_game_settings(292030, bad)
+        self.assertEqual((self.mako / "conf.toml").read_text(), before)
+        # Values equal to what the profile already has write nothing.
+        from mako_assistant.i18n import tr
+        profile = self.service.game_settings(292030).profile
+        self.assertEqual(self.service.apply_game_settings(292030, {"multiplier": 2}),
+                         tr("svc_settings_unchanged", profile=profile))
+        self.assertEqual((self.mako / "conf.toml").read_text(), before)
+
+    def test_game_settings_need_a_game_profile(self):
+        self.service.scan()
+        self.assertIsNone(self.service.game_settings(292030))
+        with self.assertRaises(LookupError):
+            self.service.apply_game_settings(292030, {"multiplier": 3})
+
+
 if __name__ == "__main__":
     unittest.main()

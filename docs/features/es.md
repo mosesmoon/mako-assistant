@@ -80,7 +80,7 @@ Cada fila tiene un botón «▶ Jugar» que inicia el juego a través de Steam. 
 
 ### 8. Vista en directo de las funciones de MAKO que se están usando
 
-La columna «Funciones MAKO activas» se actualiza cada 3 segundos. Muestra lo que MAKO **ha aplicado realmente** dentro del juego, no lo que dice el archivo de configuración:
+Mientras un juego está en marcha, su tarjeta muestra las funciones MAKO activas, actualizadas cada 3 segundos. Muestra lo que MAKO **ha aplicado realmente** dentro del juego, no lo que dice el archivo de configuración:
 
 - **Generación de fotogramas**: multiplicador fijo (por ejemplo ×2) o modo adaptativo (FPS objetivo y multiplicador máximo), escala Flow y modo de rendimiento.
 - **Escalado**: método y resolución (por ejemplo 1280×720 → 2560×1440), y supermuestreo.
@@ -89,32 +89,54 @@ La columna «Funciones MAKO activas» se actualiza cada 3 segundos. Muestra lo q
 
 Si un juego tiene Mako FG instalado pero MAKO no se ha cargado realmente, también se indica, para que puedas localizar el problema.
 
-### 9. Superposición al iniciar un juego
+### 9. Ajustes de MAKO para cada juego
+
+Cada tarjeta de juego tiene un botón de flecha en el extremo derecho. Al pulsarlo se abren justo debajo los **Ajustes de MAKO** de ese juego, con las mismas opciones que MAKO UI:
+
+- **Generación de fotogramas**: multiplicador fijo o modo Adaptativo, Multiplicador / Multiplicador máximo (0x pausa la generación de fotogramas sin borrar nada), escala Flow y modos de rendimiento.
+- **Adaptativo**: FPS objetivo, límite estable, prioridad de fotogramas reales y opciones de cadencia (solo se muestran en modo Adaptativo).
+- **Ritmo y límites**: límite de FPS base, VRR de Gamescope y protección de la frecuencia de actualización.
+- **Escalado espacial**: método de escalado, factor, nitidez y supermuestreo.
+- **Compatibilidad**: compatibilidad del número de imágenes de la swapchain.
+
+Cada opción tiene una breve explicación debajo. Los cambios se guardan primero de forma provisional y el panel indica cuántos faltan por aplicar. «Aplicar» los escribe en el perfil MAKO propio del juego y «Descartar» vuelve a los valores anteriores. La mayoría de los ajustes se aplican con el juego en marcha; los marcados con «Reiniciar» se aplican la próxima vez que inicies el juego. Los cambios sin aplicar se conservan si vuelves a escanear o cambias de idioma.
+
+Los ajustes están disponibles para los juegos que tienen su propio perfil MAKO (después de «Instalar Mako FG» o «Importar ajustes»). El perfil predeterminado `mako` nunca se modifica aquí.
+
+### 10. Superposición al iniciar un juego
 
 Si el Asistente MAKO está abierto al iniciar un juego, en cuanto detecta que MAKO funciona en él muestra las funciones de MAKO activas en la esquina inferior derecha durante unos 10 segundos y luego se desvanece:
 
 - Aparece una vez por inicio, nunca toma el foco del teclado ni del ratón, y los clics del ratón la atraviesan.
 - Puede mostrarse encima de juegos de Proton a pantalla completa.
 - Si un juego con Mako FG instalado sigue sin cargar MAKO 90 segundos después de iniciarse, se muestra un aviso en su lugar.
-- Puedes desactivarla con la casilla «Superposición al iniciar» de la barra de herramientas.
+- Puedes desactivarla con el interruptor «Superposición al iniciar» de la barra de herramientas.
 
-### 10. Búsqueda y filtros
+### 11. Búsqueda y filtros
 
 - Busca por nombre del juego (en cualquier idioma) o por App ID.
 - Filtros: todos los juegos, con Mako FG, sin Mako FG, solo ajustes de MAKO, en ejecución.
 
-### 11. Doce idiomas de interfaz
+### 12. Doce idiomas de interfaz
 
 台灣正體中文, 简体中文, English, 日本語, Deutsch, Français, Español, Italiano, ไทย, Tiếng Việt, Bahasa Melayu, हिन्दी.
 
 La primera vez, el idioma sigue al del sistema. Puedes cambiarlo en cualquier momento arriba a la derecha; el cambio se aplica al instante y se recuerda.
 
-### 12. Pensado para ser seguro
+### 13. Aspecto y temas
+
+- La interfaz tiene un diseño oscuro de aspecto cristalino con detalles en turquesa y coral; cada juego aparece como una tarjeta con su portada.
+- «Tema» en la barra de herramientas cambia entre Automático (sigue el ajuste claro u oscuro del sistema), Oscuro y Claro. La elección se recuerda.
+- El diseño se adapta a ventanas estrechas: los botones pasan a una segunda fila y el panel de ajustes usa menos columnas.
+- Los mensajes se reúnen en la zona «Actividad» de la parte inferior de la ventana, que se puede desplegar o plegar.
+
+### 14. Pensado para ser seguro
 
 - Antes de cada cambio se hace una copia de seguridad de `conf.toml` y del `localconfig.vdf` de Steam (`*.mako-assistant.bak`).
 - Después de escribir `conf.toml`, la herramienta lo comprueba con `mako-cli validate`. Si MAKO lo rechaza, el archivo original se restaura automáticamente.
 - `localconfig.vdf` nunca se edita directamente mientras Steam está abierto.
 - Al pulsar «Instalar Mako FG», la herramienta comprueba primero que MAKO Renderer está instalado (existe `~/.local/bin/mako-launch`) y que MAKO UI ha creado sus ajustes. Si falta alguno de los dos, no se cambia nada y se te indica que instales MAKO primero.
+- Los valores del panel de ajustes se comprueban con los rangos que acepta MAKO antes de escribir nada, se escriben solo en el perfil propio del juego y se verifican con `mako-cli validate` como cualquier otro cambio.
 
 ## Instalar el Asistente MAKO
 
@@ -145,7 +167,7 @@ Si no se abre, puede que a tu sistema le falte FUSE; ejecútalo en su lugar con 
 - **La superposición no aparece en el modo Juego de Steam Deck (gamescope).** En Steam Deck, usa el plugin de Decky de MAKO.
 - Los juegos en pantalla completa exclusiva con Wayland nativo pueden tapar la superposición.
 - Las opciones de lanzamiento solo se pueden cambiar en directo a través del puerto del cliente de Steam que abre Decky Loader (8080). Sin Decky, cierra Steam antes de aplicar o deja que la herramienta cierre y vuelva a abrir Steam.
-- La vista de funciones realmente activas y los metadatos de perfil de MAKO se leen en el formato de la versión actual de MAKO. Tras una actualización importante de MAKO o de Steam, puede que dejen de mostrarse temporalmente (verás «—»), pero instalar y eliminar siguen funcionando.
+- La vista de funciones realmente activas y los metadatos de perfil de MAKO se leen en el formato de la versión actual de MAKO. Tras una actualización importante de MAKO o de Steam, puede que dejen de mostrarse temporalmente, pero instalar y eliminar siguen funcionando.
 - En tailandés, vietnamita, malayo e hindi, los menús contextuales están en inglés (Qt no tiene traducciones oficiales para estos idiomas). Steam no tiene nombres de juegos en malayo ni en hindi, así que estos dos idiomas muestran siempre los nombres originales.
 - Solo se conserva la copia de seguridad más reciente.
 
@@ -153,7 +175,7 @@ Si no se abre, puede que a tu sistema le falte FUSE; ejecútalo en su lugar con 
 
 | Ubicación | Contenido |
 |---|---|
-| `~/.config/mako-assistant/state.json` | Estado propio del Asistente MAKO: caché de la lista de juegos, juegos instalados con esta herramienta, idioma de la interfaz, ajuste de la superposición |
+| `~/.config/mako-assistant/state.json` | Estado propio del Asistente MAKO: caché de la lista de juegos, juegos instalados con esta herramienta, idioma de la interfaz, tema, ajuste de la superposición |
 | `~/.config/mako-render/conf.toml` | Ajustes de MAKO Renderer (perfiles de juego) |
 | `~/.config/mako-render/profile-metadata.json` | Metadatos de los perfiles de MAKO (nombres de juegos, App ID de Steam) |
 | `<Steam>/userdata/<ID de usuario>/config/localconfig.vdf` | Opciones de lanzamiento de Steam |

@@ -80,7 +80,7 @@ Every row has a "▶ Launch" button that starts the game through Steam. While th
 
 ### 8. Live view of the MAKO features actually in use
 
-The "Live MAKO features" column refreshes every 3 seconds. It shows what MAKO has **actually applied** inside the game, not what the config file says:
+While a game is running, its card shows the live MAKO features, refreshed every 3 seconds. It shows what MAKO has **actually applied** inside the game, not what the config file says:
 
 - **Frame generation**: a fixed multiplier (for example ×2) or adaptive mode (target FPS and maximum multiplier), the Flow scale and performance mode.
 - **Scaling**: the scaling method and resolution (for example 1280×720 → 2560×1440), and supersampling.
@@ -89,32 +89,54 @@ The "Live MAKO features" column refreshes every 3 seconds. It shows what MAKO ha
 
 If a game has Mako FG installed but MAKO is not actually loaded, that is shown too, so you can track down the problem.
 
-### 9. Overlay when a game starts
+### 9. MAKO settings for each game
+
+Every game has an arrow button at the right end of its card. Click it to open that game's **MAKO settings** right below it, with the same options as MAKO UI:
+
+- **Frame Generation**: fixed multiplier or Adaptive mode, Multiplier / Maximum multiplier (0x pauses frame generation without removing anything), Flow scale and performance modes.
+- **Adaptive**: target FPS, steady cap, real-frame priority and cadence options (shown only in Adaptive mode).
+- **Pacing & limits**: base FPS cap, Gamescope VRR and the refresh-rate guard.
+- **Spatial Scaling**: scaling method, scale factor, sharpness and supersampling.
+- **Compatibility**: swapchain image count compatibility.
+
+Each option has a short explanation underneath. Your changes are collected first, and the panel shows how many are not applied yet. Click "Apply" to write them into the game's own MAKO profile, or "Discard" to go back. Most settings take effect while the game is running; items marked "Restart" take effect the next time the game starts. Changes you have not applied yet are kept when you rescan or switch language.
+
+The settings are available for games that have their own MAKO profile (after "Install Mako FG" or "Import settings"). The default profile `mako` is never changed here.
+
+### 10. Overlay when a game starts
 
 If MAKO Assistant is open when you start a game, as soon as it detects MAKO working in the game it shows the active MAKO features in the bottom-right corner for about 10 seconds, then fades out:
 
 - It appears once per launch, never takes keyboard or mouse focus, and mouse clicks pass through it.
 - It can appear on top of fullscreen Proton games.
 - If a game with Mako FG installed still has not loaded MAKO 90 seconds after starting, a warning is shown instead.
-- You can turn it off with the "Overlay on game start" checkbox in the toolbar.
+- You can turn it off with the "Overlay on game start" switch in the toolbar.
 
-### 10. Search and filters
+### 11. Search and filters
 
 - Search by game name (in any language) or by App ID.
 - Filters: all games, Mako FG installed, Mako FG not installed, MAKO settings only, running.
 
-### 11. Twelve interface languages
+### 12. Twelve interface languages
 
 台灣正體中文, 简体中文, English, 日本語, Deutsch, Français, Español, Italiano, ไทย, Tiếng Việt, Bahasa Melayu, हिन्दी.
 
 On first start the language follows your system language. You can change it at the top right at any time; the change takes effect immediately and is remembered.
 
-### 12. Built to be safe
+### 13. Look and themes
+
+- The interface has a dark, glassy look with teal and coral accents, and each game is shown as a card with its cover.
+- "Theme" in the toolbar switches between Auto (follows your system's light or dark setting), Dark and Light. Your choice is remembered.
+- The layout adapts to narrow windows: the buttons move to a second row and the settings panel uses fewer columns.
+- Messages are collected in the "Activity" area at the bottom of the window, which you can expand or collapse.
+
+### 14. Built to be safe
 
 - `conf.toml` and Steam's `localconfig.vdf` are backed up (`*.mako-assistant.bak`) before every change.
 - After writing `conf.toml`, the tool checks it with `mako-cli validate`. If MAKO rejects it, the original file is restored automatically.
 - `localconfig.vdf` is never edited directly while Steam is running.
 - When you click "Install Mako FG", the tool first checks that MAKO Renderer is installed (`~/.local/bin/mako-launch` exists) and that MAKO UI has created its settings. If either is missing, nothing is changed, and you are told to install MAKO first.
+- Settings from the per-game panel are checked against the ranges MAKO accepts before anything is written, are written only to that game's own profile, and are checked with `mako-cli validate` like every other change.
 
 ## Installing MAKO Assistant
 
@@ -145,7 +167,7 @@ If it does not start, your system may be missing FUSE; run it with `./MAKO_Assis
 - **The overlay does not appear in Steam Deck Gaming Mode (gamescope).** On a Steam Deck, use MAKO's Decky plugin instead.
 - Games running in native Wayland exclusive fullscreen may cover the overlay.
 - Live launch-option changes only work through the Steam client port that Decky Loader opens (8080). Without Decky, close Steam before applying, or let the tool close and restart Steam for you.
-- The "features actually in use" view and the MAKO profile metadata are read in the formats of the current MAKO version. After a major MAKO or Steam update they may temporarily not show (you see "—"), but installing and removing keep working.
+- The "features actually in use" view and the MAKO profile metadata are read in the formats of the current MAKO version. After a major MAKO or Steam update they may temporarily not show, but installing and removing keep working.
 - In Thai, Vietnamese, Malay and Hindi, right-click menus are in English (Qt has no official translations for these languages). Steam has no Malay or Hindi game names, so these two languages always show the original names.
 - Only the most recent backup is kept.
 
@@ -153,7 +175,7 @@ If it does not start, your system may be missing FUSE; run it with `./MAKO_Assis
 
 | Location | Contents |
 |---|---|
-| `~/.config/mako-assistant/state.json` | MAKO Assistant's own state: game list cache, games installed through this tool, interface language, overlay setting |
+| `~/.config/mako-assistant/state.json` | MAKO Assistant's own state: game list cache, games installed through this tool, interface language, theme, overlay setting |
 | `~/.config/mako-render/conf.toml` | MAKO Renderer settings (game profiles) |
 | `~/.config/mako-render/profile-metadata.json` | MAKO profile metadata (game names, Steam App IDs) |
 | `<Steam>/userdata/<user ID>/config/localconfig.vdf` | Steam launch options |

@@ -1,4 +1,4 @@
-"""PyQt6 user interface for MAKO Assistant (MAKO 助手)."""
+"""PyQt6 user interface for MAKO Assistant (MAKO 助手), in UVC Studio's design language."""
 
 from __future__ import annotations
 
@@ -11,63 +11,31 @@ from functools import cmp_to_key
 from typing import Callable, Optional
 
 from PyQt6.QtCore import (
-    QCollator, QLibraryInfo, QLocale, QObject, QRunnable, QSize, Qt, QThreadPool, QTimer, QTranslator,
+    QCollator, QEvent, QLibraryInfo, QLocale, QObject, QRunnable, Qt, QThreadPool, QTimer, QTranslator,
     pyqtSignal,
 )
-from PyQt6.QtGui import QAction, QColor, QIcon, QPixmap
+from PyQt6.QtGui import QAction, QPixmap
 from PyQt6.QtWidgets import (
-    QAbstractItemView, QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox,
-    QHBoxLayout, QHeaderView, QLabel, QLineEdit, QMainWindow, QMessageBox,
-    QPlainTextEdit, QPushButton, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout,
+    QApplication, QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFrame, QHBoxLayout, QLabel,
+    QLineEdit, QMainWindow, QMessageBox, QPlainTextEdit, QPushButton, QScrollArea, QVBoxLayout,
     QWidget,
 )
 
-from . import __version__, i18n, overlay
+from . import __version__, i18n, overlay, theme
 from .i18n import tr
-from .runtime import RunningGame, describe, detect_running
 from .mako_config import DEFAULT_PROFILE_NAME
+from .runtime import RunningGame, describe, detect_running
 from .service import AssistantService, GameEntry, SteamMustCloseError, SyncChange
+from .widgets import (
+    THUMB_H, THUMB_W, Backdrop, GameCard, Segmented, StatusPill, Switch, Wordmark,
+)
 
-THUMB_W, THUMB_H = 138, 64
-ROW_H = THUMB_H + 30
 POLL_MS = 3000
 OVERLAY_SECONDS = 10
 # A game with mako-launch whose processes never load the MAKO layer.
 OVERLAY_NO_MAKO_AFTER = 90
 
-COL_GAME, COL_STATUS, COL_PROFILE, COL_RUNTIME, COL_PATHS, COL_ACTIONS = range(6)
 FILTER_ALL, FILTER_INSTALLED, FILTER_NOT_INSTALLED, FILTER_CONFIG_ONLY, FILTER_RUNNING = range(5)
-
-STYLE = """
-QMainWindow, QDialog { background: #15171c; }
-QWidget { color: #e6e8ee; font-size: 14px; }
-QLabel#title { font-size: 22px; font-weight: 700; }
-QLabel#subtitle { color: #9aa3b2; }
-QLabel[class="pill"] { border-radius: 10px; padding: 3px 10px; background: #252a33; color: #c9d1dc; }
-QLineEdit, QComboBox { background: #1f232b; border: 1px solid #323846; border-radius: 6px;
-    padding: 6px 8px; }
-QPushButton { background: #2a303b; border: 1px solid #3a4150; border-radius: 6px;
-    padding: 7px 12px; }
-QPushButton:hover { background: #343b48; }
-QPushButton:disabled { color: #6b7380; background: #1f232b; }
-QPushButton#primary { background: #2f6fed; border-color: #2f6fed; color: white; font-weight: 600; }
-QPushButton#primary:hover { background: #4682f5; }
-QPushButton#install { background: #1f8a4c; border-color: #1f8a4c; color: white; font-weight: 600; }
-QPushButton#install:hover { background: #27a35b; }
-QPushButton#remove { background: #3a2226; border-color: #8a3340; color: #ffb3bd; }
-QPushButton#remove:hover { background: #4d2a30; }
-QPushButton#launch { background: #23324d; border-color: #3b5b96; color: #cfe0ff; font-weight: 600; }
-QPushButton#launch:hover { background: #2c3f61; }
-QPushButton#launch:disabled { background: #1c3a2a; border-color: #2c6b48; color: #7fe0a6; }
-QTableWidget { background: #1a1d23; border: 1px solid #2a2f3a; border-radius: 8px;
-    gridline-color: transparent; alternate-background-color: #1d2128; }
-QTableWidget::item { padding: 4px; }
-QTableWidget::item:selected { background: #26324a; }
-QHeaderView::section { background: #1f232b; color: #9aa3b2; border: none; padding: 6px; }
-QPlainTextEdit { background: #111318; border: 1px solid #2a2f3a; border-radius: 8px;
-    font-family: monospace; font-size: 12px; color: #b8c0cc; }
-QCheckBox { spacing: 8px; }
-"""
 
 
 def window_title() -> str:
@@ -100,8 +68,10 @@ class RemoveDialog(QDialog):
     def __init__(self, entry: GameEntry, parent: QWidget) -> None:
         super().__init__(parent)
         self.setWindowTitle(tr("remove_title"))
-        self.setMinimumWidth(480)
+        self.setMinimumWidth(500)
         layout = QVBoxLayout(self)
+        layout.setContentsMargins(22, 20, 22, 18)
+        layout.setSpacing(14)
         text = QLabel(
             tr("remove_body", name=html.escape(entry.display_name))
             + "<br><code>~/.local/bin/mako-launch %command%</code><br><br>"
@@ -117,7 +87,7 @@ class RemoveDialog(QDialog):
         layout.addWidget(self.remove_config)
         buttons = QDialogButtonBox()
         ok = buttons.addButton(tr("btn_remove"), QDialogButtonBox.ButtonRole.AcceptRole)
-        ok.setObjectName("remove")
+        ok.setObjectName("danger")
         buttons.addButton(tr("cancel"), QDialogButtonBox.ButtonRole.RejectRole)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
@@ -126,7 +96,9 @@ class RemoveDialog(QDialog):
 
 class MainWindow(QMainWindow):
     def __init__(self, service: Optional[AssistantService] = None,
-                 entries: Optional[list[GameEntry]] = None) -> None:
+                 entries: Optional[list[GameEntry]] = None, *, autostart: bool = True,
+                 expanded: Optional[set[int]] = None,
+                 pending: Optional[dict[int, dict]] = None) -> None:
         super().__init__()
         self.service = service or AssistantService()
         self.pool = QThreadPool.globalInstance()
@@ -138,95 +110,44 @@ class MainWindow(QMainWindow):
         # app id -> {"since": monotonic seconds, "shown": bool} per game session
         self._sessions: dict[int, dict] = {}
         self._thumbs: dict[int, Optional[QPixmap]] = {}
-        self._row_widgets: dict[int, tuple[QLabel, QPushButton]] = {}
+        self._cards: dict[int, GameCard] = {}
+        self._expanded: set[int] = set(expanded or ())
+        # Unsaved settings edits survive a repopulate and a language switch.
+        self._pending: dict[int, dict] = dict(pending or {})
+        self._settings: dict[int, object] = {}    # last loaded GameSettings (or None)
         self._steam = None
 
         self.setWindowTitle(window_title())
-        self.resize(1440, 800)
-        central = QWidget()
+        self.resize(1480, 920)
+        self.setMinimumSize(1100, 640)
+        central = Backdrop()
         self.setCentralWidget(central)
         root = QVBoxLayout(central)
-        root.setContentsMargins(18, 16, 18, 16)
-        root.setSpacing(12)
+        root.setContentsMargins(24, 16, 24, 14)
+        root.setSpacing(14)
+        root.addWidget(self._build_topbar())
+        root.addWidget(self._build_toolbar())
 
-        header = QHBoxLayout()
-        titles = QVBoxLayout()
-        title = QLabel(tr("app_name"))
-        title.setObjectName("title")
-        subtitle = QLabel(f"MAKO Assistant · {tr('subtitle')}")
-        subtitle.setObjectName("subtitle")
-        titles.addWidget(title)
-        titles.addWidget(subtitle)
-        header.addLayout(titles)
-        header.addStretch(1)
-        center = Qt.AlignmentFlag.AlignVCenter
-        self.count_pill = QLabel("")
-        self.count_pill.setProperty("class", "pill")
-        self.steam_pill = QLabel(tr("steam_unknown"))
-        self.steam_pill.setProperty("class", "pill")
-        header.addWidget(self.count_pill, 0, center)
-        header.addWidget(self.steam_pill, 0, center)
-        self.language_box = QComboBox()
-        self.language_box.setToolTip(tr("language"))
-        for code, native, _ in i18n.LANGUAGES:
-            self.language_box.addItem(f"🌐 {native}", code)
-        self.language_box.setCurrentIndex(i18n.CODES.index(i18n.current()))
-        self.language_box.currentIndexChanged.connect(self.change_language)
-        header.addWidget(self.language_box, 0, center)
-        self.rescan_btn = QPushButton(tr("rescan"))
-        self.rescan_btn.setObjectName("primary")
-        self.rescan_btn.setToolTip(tr("rescan_tip"))
-        self.rescan_btn.clicked.connect(lambda: self.refresh(rescan=True))
-        header.addWidget(self.rescan_btn, 0, center)
-        root.addLayout(header)
-
-        tools = QHBoxLayout()
-        self.search = QLineEdit()
-        self.search.setPlaceholderText(tr("search"))
-        self.search.textChanged.connect(self.apply_filter)
-        self.filter = QComboBox()
-        self.filter.addItems([tr("filter_all"), tr("filter_installed"),
-                              tr("filter_not_installed"), tr("filter_config_only"),
-                              tr("filter_running")])
-        self.filter.currentIndexChanged.connect(self.apply_filter)
-        self.overlay_box = QCheckBox(tr("osd_toggle"))
-        self.overlay_box.setToolTip(tr("osd_toggle_tip"))
-        self.overlay_box.setChecked(self.service.overlay_enabled)
-        self.overlay_box.toggled.connect(
-            lambda checked: setattr(self.service, "overlay_enabled", checked))
-        tools.addWidget(self.search, 1)
-        tools.addWidget(self.filter)
-        tools.addWidget(self.overlay_box)
-        root.addLayout(tools)
-
-        columns = (tr("col_game"), tr("col_status"), tr("col_profile"), tr("col_runtime"),
-                   tr("col_paths"), tr("col_actions"))
-        self.table = QTableWidget(0, len(columns))
-        self.table.setHorizontalHeaderLabels(columns)
-        self.table.verticalHeader().setVisible(False)
-        self.table.setAlternatingRowColors(True)
-        self.table.setShowGrid(False)
-        self.table.setWordWrap(True)
-        self.table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
-        self.table.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
-        self.table.setIconSize(QSize(THUMB_W, THUMB_H))
-        self.table.verticalHeader().setDefaultSectionSize(ROW_H)
-        head = self.table.horizontalHeader()
-        head.setSectionResizeMode(COL_STATUS, QHeaderView.ResizeMode.ResizeToContents)
-        for col, width in ((COL_GAME, 360), (COL_PROFILE, 240), (COL_PATHS, 200)):
-            head.setSectionResizeMode(col, QHeaderView.ResizeMode.Interactive)
-            self.table.setColumnWidth(col, width)
-        head.setSectionResizeMode(COL_RUNTIME, QHeaderView.ResizeMode.Stretch)
-        head.setSectionResizeMode(COL_ACTIONS, QHeaderView.ResizeMode.Fixed)
-
-        self.log = QPlainTextEdit()
-        self.log.setReadOnly(True)
-        self.log.setMaximumBlockCount(2000)
-        splitter = QSplitter(Qt.Orientation.Vertical)
-        splitter.addWidget(self.table)
-        splitter.addWidget(self.log)
-        splitter.setSizes([620, 130])
-        root.addWidget(splitter, 1)
+        self.scroll = QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setFrameShape(QFrame.Shape.NoFrame)
+        self.scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.list_host = QWidget()
+        self.list_host.setObjectName("transparent")
+        self.list_layout = QVBoxLayout(self.list_host)
+        self.list_layout.setContentsMargins(0, 0, 6, 0)
+        self.list_layout.setSpacing(12)
+        self.empty_label = QLabel(tr("no_matches"))
+        self.empty_label.setObjectName("empty")
+        self.empty_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.empty_label.hide()
+        self.list_layout.addWidget(self.empty_label)
+        self.list_layout.addStretch(1)
+        self.scroll.setWidget(self.list_host)
+        self.scroll.viewport().installEventFilter(self)
+        root.addWidget(self.scroll, 1)
+        root.addWidget(self._build_drawer())
+        self.statusBar().hide()
 
         quit_action = QAction(self)
         quit_action.setShortcut("Ctrl+Q")
@@ -237,9 +158,16 @@ class MainWindow(QMainWindow):
         self.poll_timer.setInterval(POLL_MS)
         self.poll_timer.timeout.connect(self.poll_runtime)
 
+        hints = QApplication.instance().styleHints()
+        if hasattr(hints, "colorSchemeChanged"):
+            hints.colorSchemeChanged.connect(lambda *_: self.apply_theme())
+
         self.write_log(tr("log_started", version=__version__))
         if self.entries:
             self.populate()
+        if not autostart:
+            return
+        if self.entries:
             QTimer.singleShot(0, lambda: self.refresh(rescan=False))
         elif self.service.has_scanned:
             QTimer.singleShot(0, lambda: self.refresh(rescan=False))
@@ -250,12 +178,150 @@ class MainWindow(QMainWindow):
         QTimer.singleShot(0, self.poll_runtime)
         QApplication.instance().aboutToQuit.connect(self._shutdown)
 
+    # ---- chrome -------------------------------------------------------------------------------
+
+    def _build_topbar(self) -> QWidget:
+        bar = QFrame()
+        bar.setObjectName("topbar")
+        row = QHBoxLayout(bar)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(10)
+        brand = QVBoxLayout()
+        brand.setSpacing(0)
+        brand.addWidget(Wordmark(tr("app_name")))
+        tagline = QLabel(tr("subtitle") if tr("app_name") == "MAKO Assistant"
+                         else f"MAKO Assistant · {tr('subtitle')}")
+        tagline.setObjectName("tagline")
+        self.tagline = tagline
+        brand.addWidget(tagline)
+        row.addLayout(brand)
+        row.addStretch(1)
+        self.steam_pill = StatusPill()
+        self.steam_pill.set_state(tr("steam_unknown"), "faint")
+        row.addWidget(self.steam_pill, 20, Qt.AlignmentFlag.AlignVCenter)
+        row.addStretch(1)
+        self.count_pill = QLabel("")
+        self.count_pill.setObjectName("pill")
+        self.count_pill.setFixedHeight(32)
+        row.addWidget(self.count_pill, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.language_box = QComboBox()
+        self.language_box.setToolTip(tr("language"))
+        for code, native, _ in i18n.LANGUAGES:
+            self.language_box.addItem(f"🌐  {native}", code)
+        self.language_box.setCurrentIndex(i18n.CODES.index(i18n.current()))
+        self.language_box.currentIndexChanged.connect(self.change_language)
+        row.addWidget(self.language_box, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.rescan_btn = QPushButton(tr("rescan"))
+        self.rescan_btn.setObjectName("primary")
+        self.rescan_btn.setToolTip(tr("rescan_tip"))
+        self.rescan_btn.clicked.connect(lambda: self.refresh(rescan=True))
+        row.addWidget(self.rescan_btn, 0, Qt.AlignmentFlag.AlignVCenter)
+        return bar
+
+    def _build_toolbar(self) -> QWidget:
+        bar = QFrame()
+        bar.setObjectName("toolbar")
+        row = QHBoxLayout(bar)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(10)
+        self.search = QLineEdit()
+        self.search.setPlaceholderText(tr("search"))
+        self.search.setClearButtonEnabled(True)
+        self.search.textChanged.connect(self.apply_filter)
+        row.addWidget(self.search, 1)
+        self.filter = QComboBox()
+        self.filter.addItems([tr("filter_all"), tr("filter_installed"),
+                              tr("filter_not_installed"), tr("filter_config_only"),
+                              tr("filter_running")])
+        self.filter.currentIndexChanged.connect(self.apply_filter)
+        row.addWidget(self.filter)
+        self.theme_box = Segmented([("auto", tr("theme_auto")), ("dark", tr("theme_dark")),
+                                    ("light", tr("theme_light"))], compact=True)
+        self.theme_box.setToolTip(tr("theme"))
+        self.theme_box.set_value(self.service.theme)
+        self.theme_box.changed.connect(self.change_theme)
+        row.addWidget(self.theme_box, 0, Qt.AlignmentFlag.AlignVCenter)
+        self.overlay_switch = Switch()
+        self.overlay_switch.setChecked(self.service.overlay_enabled)
+        self.overlay_switch.toggled.connect(
+            lambda checked: setattr(self.service, "overlay_enabled", checked))
+        overlay_label = QLabel(tr("osd_toggle"))
+        overlay_label.setToolTip(tr("osd_toggle_tip"))
+        self.overlay_switch.setToolTip(tr("osd_toggle_tip"))
+        row.addSpacing(6)
+        row.addWidget(self.overlay_switch, 0, Qt.AlignmentFlag.AlignVCenter)
+        row.addWidget(overlay_label)
+        return bar
+
+    def _build_drawer(self) -> QWidget:
+        drawer = QFrame()
+        drawer.setObjectName("drawer")
+        layout = QVBoxLayout(drawer)
+        layout.setContentsMargins(14, 8, 14, 8)
+        layout.setSpacing(6)
+        head = QHBoxLayout()
+        self.log_toggle = QPushButton(f"▸  {tr('activity')}")
+        self.log_toggle.setObjectName("link")
+        self.log_toggle.setCheckable(True)
+        self.log_toggle.toggled.connect(self._toggle_log)
+        head.addWidget(self.log_toggle)
+        self.last_line = QLabel("")
+        self.last_line.setObjectName("muted")
+        head.addWidget(self.last_line, 1)
+        footer = QLabel(f"MAKO Assistant v{__version__}")
+        footer.setObjectName("footer")
+        head.addWidget(footer)
+        layout.addLayout(head)
+        self.log = QPlainTextEdit()
+        self.log.setReadOnly(True)
+        self.log.setMaximumBlockCount(2000)
+        self.log.setFixedHeight(150)
+        self.log.hide()
+        layout.addWidget(self.log)
+        return drawer
+
+    def _toggle_log(self, shown: bool) -> None:
+        self.log.setVisible(shown)
+        self.log_toggle.setText(f"{'▾' if shown else '▸'}  {tr('activity')}")
+        self.last_line.setVisible(not shown)
+
+    def resizeEvent(self, event) -> None:
+        super().resizeEvent(event)
+        self._reflow()
+
+    def eventFilter(self, watched, event) -> bool:
+        # The list viewport settles its width after the window's own resize event.
+        if watched is self.scroll.viewport() and event.type() == QEvent.Type.Resize:
+            self._reflow()
+        return super().eventFilter(watched, event)
+
+    def _reflow(self) -> None:
+        """Hide the tagline and change settings columns as the window narrows."""
+        self.tagline.setVisible(self.width() >= 1380)
+        width = self.scroll.viewport().width() - 40   # card and panel margins
+        for card in self._cards.values():
+            card.set_compact(card.wide_width() > width + 34)
+            if card.panel is not None:
+                card.panel.set_columns(card.panel.columns_for(width))
+
     def _shutdown(self) -> None:
         """Let background tasks finish before Qt and Python tear down."""
         self.poll_timer.stop()
         self.pool.waitForDone(15000)
 
-    # ---- language -------------------------------------------------------------
+    # ---- theme & language -----------------------------------------------------------------------
+
+    def change_theme(self, choice: str) -> None:
+        self.service.theme = choice
+        self.apply_theme()
+
+    def apply_theme(self) -> None:
+        theme.set_mode(theme.resolve(self.service.theme))
+        QApplication.instance().setStyleSheet(theme.stylesheet())
+        self.centralWidget().update()
+        for card in self._cards.values():
+            card.set_runtime(self.running.get(card.entry.app_id))
+            card.update()
 
     def change_language(self, index: int) -> None:
         code = self.language_box.itemData(index)
@@ -266,7 +332,8 @@ class MainWindow(QMainWindow):
         app = QApplication.instance()
         install_translations(app)
         app.setApplicationDisplayName(tr("app_name"))
-        replacement = MainWindow(self.service, self.entries)
+        replacement = MainWindow(self.service, self.entries, expanded=self._expanded,
+                                 pending=self._pending)
         replacement.setGeometry(self.geometry())
         if self.isMaximized():
             replacement.showMaximized()
@@ -277,25 +344,26 @@ class MainWindow(QMainWindow):
         self.close()
         self.deleteLater()
 
-    # ---- helpers ------------------------------------------------------------
+    # ---- helpers ------------------------------------------------------------------------------
 
     def write_log(self, text: str) -> None:
         stamp = datetime.now().strftime("%H:%M:%S")
-        for line in str(text).splitlines() or [""]:
+        lines = str(text).splitlines() or [""]
+        for line in lines:
             self.log.appendPlainText(f"[{stamp}] {line}")
+        self.last_line.setText(lines[0] if len(lines) == 1 else f"{lines[0]} …")
 
     def set_busy(self, busy: bool, message: str = "") -> None:
         self.busy = busy
         self.rescan_btn.setEnabled(not busy)
         self.language_box.setEnabled(not busy)
-        self.table.setEnabled(not busy)
+        self.list_host.setEnabled(not busy)
         if busy:
             QApplication.setOverrideCursor(Qt.CursorShape.WaitCursor)
             if message:
-                self.statusBar().showMessage(message)
+                self.last_line.setText(message)
         else:
             QApplication.restoreOverrideCursor()
-            self.statusBar().clearMessage()
 
     def error_box(self, message: str) -> None:
         box = QMessageBox(QMessageBox.Icon.Critical, window_title(), message, parent=self)
@@ -322,7 +390,7 @@ class MainWindow(QMainWindow):
         task.signals.failed.connect(failed)
         self.pool.start(task)
 
-    # ---- data -----------------------------------------------------------------
+    # ---- data -------------------------------------------------------------------------------
 
     def refresh(self, rescan: bool) -> None:
         if self.busy:
@@ -342,6 +410,7 @@ class MainWindow(QMainWindow):
             if rescan:
                 self.write_log(tr("log_scan_done", count=len(entries)))
             self._report_sync(changes)
+            self._settings.clear()   # profiles may have changed on disk
             self.populate()
 
         self.run_task(tr("busy_scan") if rescan else tr("busy_load"), work, on_done=done)
@@ -376,7 +445,7 @@ class MainWindow(QMainWindow):
             # Games already running when the assistant opened are not "starting".
             session = self._sessions.setdefault(
                 app_id, {"since": now, "shown": self._first_poll})
-            if session["shown"] or not self.overlay_box.isChecked():
+            if session["shown"] or not self.overlay_switch.isChecked():
                 continue
             entry = entries.get(app_id)
             mako_ready = game.mako_loaded and bool(game.contexts)
@@ -389,7 +458,7 @@ class MainWindow(QMainWindow):
 
     def _show_overlay(self, entry: Optional[GameEntry], game: RunningGame) -> None:
         headline, features, notes = describe(game)
-        color = "#4cd384" if game.mako_loaded and features else "#f2c14e"
+        color = "#27d4b3" if game.mako_loaded and features else "#f2c14e"
         try:
             overlay.show({
                 "title": entry.display_name if entry else f"App {game.app_id}",
@@ -419,7 +488,7 @@ class MainWindow(QMainWindow):
 
     def _update_steam_pill(self, running: bool, live: bool) -> None:
         key = "steam_off" if not running else "steam_live" if live else "steam_must_close"
-        self.steam_pill.setText(tr(key))
+        self.steam_pill.set_state(tr(key), "ok" if live or not running else "warn")
 
     def _thumb(self, app_id: int) -> Optional[QPixmap]:
         if app_id not in self._thumbs:
@@ -433,137 +502,56 @@ class MainWindow(QMainWindow):
             if path:
                 loaded = QPixmap(str(path))
                 if not loaded.isNull():
-                    pixmap = loaded.scaled(THUMB_W, THUMB_H,
+                    ratio = self.devicePixelRatioF()
+                    scaled = loaded.scaled(int(THUMB_W * ratio), int(THUMB_H * ratio),
                                            Qt.AspectRatioMode.KeepAspectRatioByExpanding,
                                            Qt.TransformationMode.SmoothTransformation)
+                    scaled = scaled.copy((scaled.width() - int(THUMB_W * ratio)) // 2,
+                                         (scaled.height() - int(THUMB_H * ratio)) // 2,
+                                         int(THUMB_W * ratio), int(THUMB_H * ratio))
+                    scaled.setDevicePixelRatio(ratio)
+                    pixmap = theme.rounded(scaled, 10)
             self._thumbs[app_id] = pixmap
         return self._thumbs[app_id]
 
-    @staticmethod
-    def _status(entry: GameEntry) -> tuple[str, str]:
-        if entry.has_mako and entry.profile_name:
-            return tr("st_installed"), "#4cd384"
-        if entry.has_mako:
-            return tr("st_injected"), "#f2c14e"
-        if entry.profile_name:
-            return tr("st_config_only"), "#8fb3ff"
-        return tr("st_not_installed"), "#8b93a1"
-
     def populate(self) -> None:
-        self.table.setRowCount(0)
-        self._row_widgets.clear()
-        installed = 0
+        for card in self._cards.values():
+            self.list_layout.removeWidget(card)
+            card.deleteLater()
+        self._cards.clear()
         collator = QCollator(QLocale(i18n.qt_suffix()))
         collator.setCaseSensitivity(Qt.CaseSensitivity.CaseInsensitive)
         collator.setNumericMode(True)
         self.entries.sort(key=cmp_to_key(lambda a, b: collator.compare(a.display_name,
                                                                         b.display_name)))
-        for entry in self.entries:
-            row = self.table.rowCount()
-            self.table.insertRow(row)
-
-            name_item = QTableWidgetItem(f"{entry.display_name}\nApp ID {entry.app_id}")
-            name_item.setData(Qt.ItemDataRole.UserRole, entry.app_id)
-            thumb = self._thumb(entry.app_id)
-            if thumb:
-                name_item.setIcon(QIcon(thumb))
-            tooltip = entry.install_dir
-            if entry.display_name != entry.name:
-                tooltip = f"{entry.name}\n{tooltip}"
-            name_item.setToolTip(tooltip)
-            self.table.setItem(row, COL_GAME, name_item)
-
-            label, color = self._status(entry)
-            status = QTableWidgetItem(label)
-            status.setForeground(QColor(color))
-            status.setToolTip(tr("launch_options_tip",
-                                 options=entry.launch_options or tr("empty")))
-            self.table.setItem(row, COL_STATUS, status)
-
-            profile_text = (f"{entry.profile_name}\n{', '.join(entry.profile_processes) or '—'}"
-                            if entry.profile_name else "—")
-            self.table.setItem(row, COL_PROFILE, QTableWidgetItem(profile_text))
-
-            runtime_label = QLabel()
-            runtime_label.setWordWrap(True)
-            runtime_label.setTextFormat(Qt.TextFormat.RichText)
-            runtime_label.setContentsMargins(6, 2, 6, 2)
-            self.table.setCellWidget(row, COL_RUNTIME, runtime_label)
-
-            paths = entry.executables
-            path_item = QTableWidgetItem("\n".join(paths) if paths else
-                                         (tr("not_detected") if entry.managed else "—"))
-            path_item.setToolTip("\n".join(paths) or entry.install_dir)
-            self.table.setItem(row, COL_PATHS, path_item)
-
-            cell = QWidget()
-            box = QHBoxLayout(cell)
-            box.setContentsMargins(6, 4, 6, 4)
-            box.setSpacing(6)
-            launch = QPushButton(tr("btn_launch"))
-            launch.setObjectName("launch")
-            launch.setToolTip(tr("btn_launch_tip"))
-            launch.clicked.connect(lambda _, e=entry: self.launch(e))
-            box.addWidget(launch)
-            if entry.has_mako and not entry.profile_name:
-                adopt = QPushButton(tr("btn_import"))
-                adopt.setObjectName("install")
-                adopt.setToolTip(tr("btn_import_tip"))
-                adopt.clicked.connect(lambda _, e=entry: self.install(e))
-                box.addWidget(adopt)
-            if entry.has_mako:
-                installed += 1
-                button = QPushButton(tr("btn_remove"))
-                button.setObjectName("remove")
-                button.clicked.connect(lambda _, e=entry: self.uninstall(e))
-            else:
-                button = QPushButton(tr("btn_install"))
-                button.setObjectName("install")
-                button.clicked.connect(lambda _, e=entry: self.install(e))
-            box.addWidget(button)
-            box.addStretch(1)
-            self.table.setCellWidget(row, COL_ACTIONS, cell)
-            self._row_widgets[entry.app_id] = (runtime_label, launch)
+        actions = {"launch": self.launch, "install": self.install, "uninstall": self.uninstall}
+        installed = 0
+        for index, entry in enumerate(self.entries):
+            card = GameCard(entry, self._thumb(entry.app_id), actions, self.list_host)
+            card.expand_toggled.connect(self._on_expand)
+            self.list_layout.insertWidget(index, card)
+            self._cards[entry.app_id] = card
+            installed += entry.has_mako
+            if entry.app_id in self._expanded:
+                card.set_expanded(True)
+                self._load_settings(entry.app_id)
         self.count_pill.setText(tr("count", installed=installed, total=len(self.entries)))
-        # Cell widgets are ignored by ResizeToContents; size the column from the
-        # widest button row (button labels differ a lot between languages).
-        widest = max((self.table.cellWidget(r, COL_ACTIONS).sizeHint().width()
-                      for r in range(self.table.rowCount())), default=200)
-        self.table.setColumnWidth(COL_ACTIONS, widest + 8)
         self.update_runtime()
+        self._reflow()
 
     def update_runtime(self) -> None:
-        for app_id, (label, launch) in self._row_widgets.items():
-            game = self.running.get(app_id)
-            launch.setEnabled(game is None)
-            launch.setText(tr("btn_running") if game else tr("btn_launch"))
-            if game is None:
-                label.setText('<span style="color:#6b7380">—</span>')
-                label.setToolTip("")
-                continue
-            headline, features, notes = describe(game)
-            color = "#4cd384" if game.mako_loaded and features else (
-                "#f2c14e" if game.mako_loaded else "#8b93a1")
-            parts = [f'<b style="color:{color}">{html.escape(headline)}</b>']
-            for feature in features:
-                mark, tone = ("✓", "#7fe0a6") if feature.active else ("✗", "#8b93a1")
-                detail = f" — {html.escape(feature.detail)}" if feature.detail else ""
-                parts.append(f'<span style="color:{tone}">{mark} {html.escape(feature.label)}'
-                             f'</span><span style="color:#b8c0cc">{detail}</span>')
-            for note in notes:
-                parts.append(f'<span style="color:#f2c14e">⚠ {html.escape(note)}</span>')
-            label.setText("<br>".join(parts))
-            label.setToolTip(tr("rt_pids", pids=", ".join(map(str, sorted(game.pids)))))
+        for app_id, card in self._cards.items():
+            card.set_runtime(self.running.get(app_id))
         self.apply_filter()
+        self._reflow()
 
     def apply_filter(self) -> None:
         query = self.search.text().strip().casefold()
         mode = self.filter.currentIndex()
-        by_id = {e.app_id: e for e in self.entries}
-        for row in range(self.table.rowCount()):
-            item = self.table.item(row, COL_GAME)
-            entry = by_id.get(item.data(Qt.ItemDataRole.UserRole)) if item else None
-            if entry is None:
+        shown = 0
+        for entry in self.entries:
+            card = self._cards.get(entry.app_id)
+            if card is None:
                 continue
             visible = not query or entry.matches(query)
             if mode == FILTER_INSTALLED:
@@ -574,9 +562,73 @@ class MainWindow(QMainWindow):
                 visible &= bool(entry.profile_name) and not entry.has_mako
             elif mode == FILTER_RUNNING:
                 visible &= entry.app_id in self.running
-            self.table.setRowHidden(row, not visible)
+            card.setVisible(visible)
+            shown += visible
+        self.empty_label.setVisible(bool(self._cards) and shown == 0)
 
-    # ---- actions ------------------------------------------------------------
+    # ---- per-game settings ---------------------------------------------------------------------
+
+    def _on_expand(self, app_id: int, expanded: bool) -> None:
+        if expanded:
+            self._expanded.add(app_id)
+            self._load_settings(app_id)
+            self._reflow()
+        else:
+            self._expanded.discard(app_id)
+
+    def _load_settings(self, app_id: int) -> None:
+        card = self._cards.get(app_id)
+        if card is None:
+            return
+        panel = card.ensure_panel()
+        if not getattr(panel, "_wired", False):
+            panel.apply_requested.connect(self.apply_settings)
+            panel.pending_changed.connect(lambda i, p: self._pending.__setitem__(i, p))
+            panel._wired = True
+        if app_id in self._settings:
+            panel.set_settings(self._settings[app_id], self._pending.get(app_id))
+            return
+        panel.set_loading()
+        task = _Task(self.service.game_settings, app_id)
+
+        def done(settings):
+            self._settings[app_id] = settings
+            current = self._cards.get(app_id)
+            if current is not None and current.panel is not None:
+                current.panel.set_settings(settings, self._pending.get(app_id))
+
+        def failed(error):
+            self.write_log(tr("log_error", error=error))
+            current = self._cards.get(app_id)
+            if current is not None and current.panel is not None:
+                current.panel.set_settings(None)
+
+        task.signals.done.connect(done)
+        task.signals.failed.connect(failed)
+        self.pool.start(task)
+
+    def apply_settings(self, app_id: int, changes: dict) -> None:
+        if not changes:
+            return
+        entry = next((e for e in self.entries if e.app_id == app_id), None)
+        name = entry.display_name if entry else str(app_id)
+
+        def work():
+            message = self.service.apply_game_settings(app_id, changes)
+            return message, self.service.game_settings(app_id)
+
+        def done(result):
+            message, settings = result
+            self.write_log(message)
+            self._pending.pop(app_id, None)
+            self._settings[app_id] = settings
+            card = self._cards.get(app_id)
+            if card is not None and card.panel is not None:
+                card.panel.set_settings(settings, {})
+
+        self.run_task(tr("busy_apply", name=name), work, on_done=done)
+
+    # ---- actions -------------------------------------------------------------------------------
 
     def launch(self, entry: GameEntry) -> None:
         self.write_log(tr("log_launch", name=entry.display_name))
@@ -586,13 +638,14 @@ class MainWindow(QMainWindow):
             self.write_log(tr("log_error", error=error))
             self.error_box(str(error))
             return
-        _, launch = self._row_widgets.get(entry.app_id, (None, None))
-        if launch is not None:
-            launch.setEnabled(False)  # re-enabled by polling if the game never starts
+        card = self._cards.get(entry.app_id)
+        if card is not None:
+            card.launch_btn.setEnabled(False)  # re-enabled by polling if the game never starts
         QTimer.singleShot(1500, self.poll_runtime)
 
     def install(self, entry: GameEntry) -> None:
         self.write_log(tr("log_install", name=entry.display_name))
+        self._settings.pop(entry.app_id, None)
         self._run_action(tr("busy_install", name=entry.display_name),
                          self.service.install, entry.app_id)
 
@@ -603,6 +656,7 @@ class MainWindow(QMainWindow):
         remove_config = dialog.remove_config.isChecked()
         self.write_log(tr("log_remove_with_config" if remove_config else "log_remove",
                           name=entry.display_name))
+        self._settings.pop(entry.app_id, None)
         self._run_action(tr("busy_remove", name=entry.display_name),
                          self.service.uninstall, entry.app_id, remove_config)
 
@@ -665,15 +719,22 @@ def install_translations(app: QApplication) -> None:
                 break
 
 
-def main() -> int:
-    app = QApplication(sys.argv)
-    service = AssistantService()
+def prepare_app(app: QApplication, service: AssistantService) -> None:
     i18n.set_language(service.language)
     install_translations(app)
     app.setApplicationName("MAKO Assistant")
     app.setApplicationDisplayName(tr("app_name"))
     app.setDesktopFileName("mako-assistant")
-    app.setStyleSheet(STYLE)
+    app.setStyle("Fusion")
+    theme.load_fonts()
+    theme.set_mode(theme.resolve(service.theme))
+    app.setStyleSheet(theme.stylesheet())
+
+
+def main() -> int:
+    app = QApplication(sys.argv)
+    service = AssistantService()
+    prepare_app(app, service)
     app.main_window = MainWindow(service)
     app.main_window.show()
     return app.exec()

@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from . import launch_options as lo
+from . import mako_settings
 from .executables import detect_executables, process_names
 from .i18n import localized_name, tr
 from .mako_config import DEFAULT_PROFILE_NAME, MakoConfig
@@ -48,6 +49,13 @@ class GameEntry:
         query = query.casefold()
         return (query in str(self.app_id)
                 or any(query in n.casefold() for n in (self.name, *self.names.values())))
+
+
+@dataclass
+class GameSettings:
+    app_id: int
+    profile: str
+    values: dict
 
 
 @dataclass
@@ -346,6 +354,29 @@ class AssistantService:
         self._save_state()
         return message
 
+    # ---- per-game MAKO settings ---------------------------------------------------
+
+    def game_settings(self, app_id: int) -> Optional[GameSettings]:
+        """The settings panel's view of a game's MAKO profile, or None without one."""
+        config = self.mako()
+        found = config.game_settings(app_id)
+        if found is None:
+            return None
+        name, profile, default = found
+        return GameSettings(app_id, name, mako_settings.effective_values(profile, default))
+
+    def apply_game_settings(self, app_id: int, changes: dict) -> str:
+        """Write changed settings to the game's profile (backup, validate, roll back on error)."""
+        config = self.mako()
+        name, changed = config.update_game_settings(app_id, changes)
+        if not changed:
+            return tr("svc_settings_unchanged", profile=name)
+        config.save()
+        message = tr("svc_settings_applied", profile=name, count=len(changed))
+        if any(mako_settings.FIELDS.get(k) and mako_settings.FIELDS[k].restart for k in changed):
+            message += "\n" + tr("svc_settings_restart")
+        return message
+
     # ---- Steam process control (fallback when CEF is unavailable) -------------
 
     def shutdown_steam(self, progress: Callable[[str], None] = lambda _: None) -> bool:
@@ -382,6 +413,17 @@ class AssistantService:
     @overlay_enabled.setter
     def overlay_enabled(self, enabled: bool) -> None:
         self.state["overlay"] = bool(enabled)
+        self._save_state()
+
+    @property
+    def theme(self) -> str:
+        """Interface theme: auto (follow the desktop), dark or light."""
+        value = self.state.get("theme")
+        return value if value in ("auto", "dark", "light") else "auto"
+
+    @theme.setter
+    def theme(self, value: str) -> None:
+        self.state["theme"] = value if value in ("auto", "dark", "light") else "auto"
         self._save_state()
 
     def start_steam(self) -> None:

@@ -364,6 +364,38 @@ class MakoConfig:
             default.pop("active_in", None)
         return released
 
+    def game_settings(self, app_id: int) -> Optional[tuple[str, dict[str, Any], dict[str, Any]]]:
+        """(profile name, the game's profile table, the default profile table) or None."""
+        existing = self.profile_for_app(app_id)
+        if existing is None:
+            return None
+        profile = self._profile(existing.name) or {}
+        default = self._profile(DEFAULT_PROFILE_NAME) or {}
+        return existing.name, dict(profile), dict(default)
+
+    def update_game_settings(self, app_id: int, changes: dict[str, Any]) -> tuple[str, list[str]]:
+        """Write validated per-game settings into the game's own profile (call save() after).
+
+        Only keys in `mako_settings.WRITABLE` are accepted; anything else in the
+        profile is kept as it is. Returns (profile name, keys whose value changed).
+        """
+        from . import mako_settings
+
+        existing = self.profile_for_app(app_id)
+        if existing is None or existing.name == DEFAULT_PROFILE_NAME:
+            raise LookupError(tr("cfg_no_game_profile"))
+        clean = {}
+        for key, value in changes.items():
+            if key not in mako_settings.WRITABLE:
+                raise ValueError(f"{key}: not a per-game setting")
+            clean[key] = mako_settings.coerce(key, value)
+        profile = self._profile(existing.name)
+        assert profile is not None
+        changed = [k for k, v in clean.items() if profile.get(k) != v or k not in profile]
+        for key in changed:
+            profile[key] = clean[key]
+        return existing.name, changed
+
     def remove_game(self, app_id: int) -> Optional[str]:
         existing = self.profile_for_app(app_id)
         if existing is None or existing.name == DEFAULT_PROFILE_NAME:
