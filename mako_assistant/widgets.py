@@ -82,9 +82,7 @@ class Switch(QAbstractButton):
         radius = r.height() / 2
         enabled = self.isEnabled()
         if self.isChecked():
-            grad = QLinearGradient(r.topLeft(), r.topRight())
-            grad.setColorAt(0, QColor(theme.TEAL))
-            grad.setColorAt(1, QColor(theme.CORAL))
+            grad = theme.button_gradient(r.left(), r.right())
             p.setBrush(grad if enabled else theme.qcolor("track"))
         else:
             p.setBrush(theme.qcolor("track"))
@@ -110,9 +108,7 @@ class ChevronButton(QAbstractButton):
         p.setRenderHint(QPainter.RenderHint.Antialiasing)
         r = QRectF(1, 1, self.width() - 2, self.height() - 2)
         if self.isChecked():
-            grad = QLinearGradient(r.topLeft(), r.topRight())
-            grad.setColorAt(0, QColor(theme.TEAL))
-            grad.setColorAt(1, QColor(theme.CORAL))
+            grad = theme.button_gradient(r.left(), r.right())
             p.setBrush(grad)
             p.setPen(Qt.PenStyle.NoPen)
             color = QColor("white")

@@ -1,8 +1,8 @@
 """Visual system for MAKO Assistant, following UVC Studio's design language.
 
 Near-black ground lit by soft teal / blue / coral glows, glass panels with
-hairline borders, and a teal → coral gradient for every "selected" or primary
-state. Colours are tokens; `stylesheet()` renders the Qt style sheet from them.
+hairline borders, and a green → cyan → blue → indigo → violet gradient for every
+"selected" or primary state. Colours are tokens; `stylesheet()` renders the Qt style sheet from them.
 """
 
 from __future__ import annotations
@@ -51,8 +51,29 @@ BODY_MEDIUM = '"Inter Medium", "Inter", "Noto Sans CJK TC", "Noto Sans CJK SC", 
 BODY_SEMIBOLD = '"Inter SemiBold", "Inter", "Noto Sans CJK TC", "Noto Sans CJK SC", sans-serif'
 MONO = '"JetBrains Mono", "DejaVu Sans Mono", "Noto Sans Mono", monospace'
 
-GRADIENT = f"qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {TEAL}, stop:1 {CORAL})"
-GRADIENT_HOVER = "qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #3fe0c2, stop:1 #ff7a77)"
+# Buttons, switches and selected segments: green → cyan → blue → indigo → violet.
+BUTTON_STOPS = (("#22c98a", 0.0), ("#1fb8d8", 0.25), ("#3b82f6", 0.5), ("#5b5ce2", 0.75),
+                ("#9b5cf0", 1.0))
+BUTTON_STOPS_HOVER = (("#3dd89c", 0.0), ("#3cc8e4", 0.25), ("#5795f8", 0.5), ("#7172ea", 0.75),
+                      ("#ad74f4", 1.0))
+
+
+def _qss_gradient(stops) -> str:
+    return ("qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+            + ", ".join(f"stop:{at} {color}" for color, at in stops) + ")")
+
+
+def button_gradient(x0: float, x1: float, y: float = 0.0):
+    """The button gradient as a QLinearGradient for custom-painted widgets."""
+    from PyQt6.QtGui import QLinearGradient
+    grad = QLinearGradient(x0, y, x1, y)
+    for color, at in BUTTON_STOPS:
+        grad.setColorAt(at, QColor(color))
+    return grad
+
+
+GRADIENT = _qss_gradient(BUTTON_STOPS)
+GRADIENT_HOVER = _qss_gradient(BUTTON_STOPS_HOVER)
 SLIDER_FILL = f"qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 {TEAL}, stop:1 {PURPLE})"
 
 _mode = "dark"          # resolved: dark | light

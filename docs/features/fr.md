@@ -125,7 +125,7 @@ Au premier lancement, la langue suit celle du système. Vous pouvez la changer �
 
 ### 13. Apparence et thèmes
 
-- L’interface adopte un style sombre et vitré avec des touches turquoise et corail ; chaque jeu apparaît sous forme de carte avec sa jaquette.
+- L’interface adopte un style sombre et vitré avec des boutons et interrupteurs en dégradé vert → cyan → bleu → indigo → violet ; chaque jeu apparaît sous forme de carte avec sa jaquette.
 - « Thème » dans la barre d’outils permet de choisir Auto (suit le réglage clair ou sombre du système), Sombre ou Clair. Votre choix est mémorisé.
 - La mise en page s’adapte aux fenêtres étroites : les boutons passent sur une deuxième ligne et le panneau de réglages utilise moins de colonnes.
 - Les messages sont regroupés dans la zone « Activité » en bas de la fenêtre, que vous pouvez déplier ou replier.

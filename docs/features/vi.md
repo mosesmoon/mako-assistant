@@ -125,7 +125,7 @@ Lần mở đầu tiên, ngôn ngữ được chọn theo ngôn ngữ hệ thố
 
 ### 13. Giao diện và chủ đề
 
-- Giao diện mang phong cách tối, hiệu ứng kính, điểm xuyết màu xanh ngọc và san hô; mỗi game hiển thị dưới dạng thẻ kèm ảnh bìa.
+- Giao diện mang phong cách tối, hiệu ứng kính, nút và công tắc chuyển màu xanh lá → xanh lơ → xanh dương → chàm → tím; mỗi game hiển thị dưới dạng thẻ kèm ảnh bìa.
 - "Giao diện" trên thanh công cụ chuyển giữa Tự động (theo thiết lập sáng/tối của hệ thống), Tối và Sáng. Lựa chọn được ghi nhớ.
 - Bố cục tự điều chỉnh khi cửa sổ hẹp: các nút chuyển xuống hàng thứ hai và bảng thiết lập dùng ít cột hơn.
 - Các thông báo được gom vào khu vực "Hoạt động" ở cuối cửa sổ, có thể mở rộng hoặc thu gọn.

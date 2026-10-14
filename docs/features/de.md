@@ -125,7 +125,7 @@ Beim ersten Start richtet sich die Sprache nach deiner Systemsprache. Du kannst 
 
 ### 13. Aussehen und Designs
 
-- Die Oberfläche hat ein dunkles Glas-Design mit Akzenten in Türkis und Koralle; jedes Spiel erscheint als Karte mit seinem Cover.
+- Die Oberfläche hat ein dunkles Glas-Design mit Schaltflächen und Schaltern im Farbverlauf Grün → Cyan → Blau → Indigo → Violett; jedes Spiel erscheint als Karte mit seinem Cover.
 - Mit „Design“ in der Werkzeugleiste wechselst du zwischen Automatisch (folgt der hellen oder dunklen Systemeinstellung), Dunkel und Hell. Die Wahl wird gespeichert.
 - Das Layout passt sich schmalen Fenstern an: Die Schaltflächen rutschen in eine zweite Zeile, und das Einstellungspanel nutzt weniger Spalten.
 - Meldungen stehen gesammelt im Bereich „Aktivität“ unten im Fenster, den du auf- und zuklappen kannst.

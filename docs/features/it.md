@@ -125,7 +125,7 @@ Al primo avvio la lingua segue quella di sistema. Puoi cambiarla in qualsiasi mo
 
 ### 13. Aspetto e temi
 
-- L’interfaccia ha un aspetto scuro ed effetto vetro con accenti turchese e corallo; ogni gioco appare come una scheda con la sua copertina.
+- L’interfaccia ha un aspetto scuro ed effetto vetro con pulsanti e interruttori in sfumatura verde → ciano → blu → indaco → viola; ogni gioco appare come una scheda con la sua copertina.
 - «Tema» nella barra degli strumenti passa tra Automatico (segue l’impostazione chiara o scura del sistema), Scuro e Chiaro. La scelta viene ricordata.
 - Il layout si adatta alle finestre strette: i pulsanti passano su una seconda riga e il pannello delle impostazioni usa meno colonne.
 - I messaggi sono raccolti nell’area «Attività» in fondo alla finestra, che si può espandere o comprimere.

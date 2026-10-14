@@ -125,7 +125,7 @@ La primera vez, el idioma sigue al del sistema. Puedes cambiarlo en cualquier mo
 
 ### 13. Aspecto y temas
 
-- La interfaz tiene un diseño oscuro de aspecto cristalino con detalles en turquesa y coral; cada juego aparece como una tarjeta con su portada.
+- La interfaz tiene un diseño oscuro de aspecto cristalino con botones e interruptores en degradado verde → cian → azul → índigo → violeta; cada juego aparece como una tarjeta con su portada.
 - «Tema» en la barra de herramientas cambia entre Automático (sigue el ajuste claro u oscuro del sistema), Oscuro y Claro. La elección se recuerda.
 - El diseño se adapta a ventanas estrechas: los botones pasan a una segunda fila y el panel de ajustes usa menos columnas.
 - Los mensajes se reúnen en la zona «Actividad» de la parte inferior de la ventana, que se puede desplegar o plegar.

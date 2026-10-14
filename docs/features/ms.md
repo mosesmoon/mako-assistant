@@ -125,7 +125,7 @@ Kali pertama dibuka, bahasa mengikut bahasa sistem. Anda boleh menukarnya pada b
 
 ### 13. Rupa dan tema
 
-- Antara muka menggunakan reka bentuk gelap berkesan kaca dengan aksen hijau kebiruan dan merah karang; setiap permainan dipaparkan sebagai kad dengan kulitnya.
+- Antara muka menggunakan reka bentuk gelap berkesan kaca dengan butang dan suis berwarna kecerunan hijau → sian → biru → nila → ungu; setiap permainan dipaparkan sebagai kad dengan kulitnya.
 - "Tema" pada bar alat bertukar antara Auto (mengikut tetapan cerah atau gelap sistem), Gelap dan Cerah. Pilihan anda diingati.
 - Susun atur menyesuaikan diri dengan tetingkap sempit: butang beralih ke baris kedua dan panel tetapan menggunakan lebih sedikit lajur.
 - Mesej dikumpulkan dalam ruang "Aktiviti" di bahagian bawah tetingkap, yang boleh dikembangkan atau dikecilkan.

@@ -125,7 +125,7 @@ On first start the language follows your system language. You can change it at t
 
 ### 13. Look and themes
 
-- The interface has a dark, glassy look with teal and coral accents, and each game is shown as a card with its cover.
+- The interface has a dark, glassy look with buttons and switches in a green → cyan → blue → indigo → violet gradient, and each game is shown as a card with its cover.
 - "Theme" in the toolbar switches between Auto (follows your system's light or dark setting), Dark and Light. Your choice is remembered.
 - The layout adapts to narrow windows: the buttons move to a second row and the settings panel uses fewer columns.
 - Messages are collected in the "Activity" area at the bottom of the window, which you can expand or collapse.
