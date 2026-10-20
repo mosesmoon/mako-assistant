@@ -155,6 +155,22 @@ chmod +x MAKO_Assistant-*-x86_64.AppImage
 
 अगर यह न खुले, तो हो सकता है आपके सिस्टम में FUSE न हो; तब इसे `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` से चलाएँ।
 
+**इंस्टॉलर (.bin)**: MAKO सहायक को केवल आपके उपयोगकर्ता के लिए इंस्टॉल करता है (root की ज़रूरत नहीं), साथ में `mako-assistant` कमांड और ऐप्लिकेशन मेनू की प्रविष्टि बनाता है। इसमें Python और Qt शामिल हैं।
+
+```bash
+sh MAKO_Assistant-<संस्करण>-x86_64.bin               # इंस्टॉल करें, या पुराना संस्करण अपडेट करें
+sh MAKO_Assistant-<संस्करण>-x86_64.bin --uninstall   # हटाएँ (आपकी सेटिंग्स बनी रहती हैं)
+```
+
+**Flatpak**: इंस्टॉल करते समय KDE रनटाइम Flathub से डाउनलोड होता है। क्योंकि MAKO सहायक को Steam और MAKO की फ़ाइलें बदलनी होती हैं और चल रहे गेम पहचानने होते हैं, Flatpak संस्करण सभी फ़ाइलें पढ़-लिख सकता है और `mako-cli`, Steam तथा चल रहे गेम की पहचान को `flatpak-spawn --host` के ज़रिए होस्ट सिस्टम पर चलाता है; व्यवहार में यह सैंडबॉक्स में अलग नहीं रहता।
+
+```bash
+flatpak install --user MAKO_Assistant-<संस्करण>-x86_64.flatpak
+flatpak run io.github.mosesmoon.MakoAssistant
+```
+
+सभी संस्करण एक ही सेटिंग्स इस्तेमाल करते हैं, इसलिए आप कभी भी इनके बीच बदल सकते हैं।
+
 **सोर्स कोड से चलाना**: Python 3.11 या नया और PyQt6 ज़रूरी है (Arch: `sudo pacman -S python-pyqt6`)।
 
 ```bash

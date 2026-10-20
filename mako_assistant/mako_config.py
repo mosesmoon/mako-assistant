@@ -16,12 +16,12 @@ import math
 import os
 import re
 import shutil
-import subprocess
 import tomllib
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Optional
 
+from . import hostenv
 from .i18n import tr
 
 DEFAULT_PROFILE_NAME = "mako"
@@ -30,8 +30,7 @@ _INVALID_NAME_CHARS = set('\t\n\r\'"\\/$|&;()<>{}[]`*?')
 
 
 def config_dir() -> Path:
-    base = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
-    return Path(base) / "mako-render"
+    return hostenv.xdg_config_home() / "mako-render"
 
 
 def mako_cli() -> Optional[Path]:
@@ -41,7 +40,7 @@ def mako_cli() -> Optional[Path]:
     ):
         if candidate.is_file() and os.access(candidate, os.X_OK):
             return candidate
-    found = shutil.which("mako-cli")
+    found = hostenv.which("mako-cli")
     return Path(found) if found else None
 
 
@@ -204,10 +203,7 @@ class MakoConfig:
 
         cli = mako_cli()
         if cli is not None:
-            result = subprocess.run(
-                [str(cli), "validate", "-c", str(self.conf_path)],
-                capture_output=True, text=True, timeout=30,
-            )
+            result = hostenv.run([str(cli), "validate", "-c", str(self.conf_path)], timeout=30)
             if result.returncode != 0:
                 if had_conf:
                     shutil.copy2(backup, self.conf_path)

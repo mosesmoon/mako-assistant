@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import html
+import os
 import sys
 import time
 import traceback
@@ -724,7 +725,8 @@ def prepare_app(app: QApplication, service: AssistantService) -> None:
     install_translations(app)
     app.setApplicationName("MAKO Assistant")
     app.setApplicationDisplayName(tr("app_name"))
-    app.setDesktopFileName("mako-assistant")
+    # Inside Flatpak the desktop file is named after the app id.
+    app.setDesktopFileName(os.environ.get("FLATPAK_ID") or "mako-assistant")
     app.setStyle("Fusion")
     theme.load_fonts()
     theme.set_mode(theme.resolve(service.theme))

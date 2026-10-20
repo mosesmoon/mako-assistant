@@ -12,6 +12,9 @@ Nothing here reads conf.toml. The sources are the live processes:
   and spatial scaling are active. The layer leaves these files behind when a
   game exits, so a file only counts when its pid is alive *and* the pid's
   start time matches ``process_start_ticks``.
+
+Inside Flatpak the host's processes are not visible in the sandbox's /proc;
+``hostenv.host_processes()`` reports the same fields from the host instead.
 """
 
 from __future__ import annotations
@@ -22,12 +25,14 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
+from . import hostenv
+from .hostenv import ProcessInfo
 from .i18n import tr
 from .mako_config import config_dir
 
 _APP_ID_ENV_KEYS = ("SteamAppId", "SteamGameId", "STEAM_COMPAT_APP_ID")
-_MAKO_LIBRARY = b"libmako-render.so"
-_VKBASALT_LIBRARY = b"vkbasalt"
+_MAKO_LIBRARY = "libmako-render.so"
+_VKBASALT_LIBRARY = "vkbasalt"
 
 
 @dataclass
@@ -77,21 +82,17 @@ def _start_ticks(pid: int, proc: Path) -> Optional[int]:
         stat = (proc / str(pid) / "stat").read_text()
     except OSError:
         return None
-    # comm (field 2) may contain spaces/parentheses: split after the last ')'.
-    fields = stat.rsplit(")", 1)[-1].split()
-    try:
-        return int(fields[19])  # field 22 overall: starttime
-    except (IndexError, ValueError):
-        return None
+    return hostenv.start_ticks_from_stat(stat)
 
 
-def _maps_contains(pid_dir: Path, needles: tuple[bytes, ...]) -> set[bytes]:
-    found: set[bytes] = set()
+def _maps_contains(pid_dir: Path, needles: tuple[str, ...]) -> set[str]:
+    found: set[str] = set()
+    encoded = [(needle, needle.encode()) for needle in needles]
     try:
         with (pid_dir / "maps").open("rb") as handle:
             for line in handle:
-                for needle in needles:
-                    if needle not in found and needle in line:
+                for needle, raw in encoded:
+                    if needle not in found and raw in line:
                         found.add(needle)
                 if len(found) == len(needles):
                     break
@@ -100,20 +101,14 @@ def _maps_contains(pid_dir: Path, needles: tuple[bytes, ...]) -> set[bytes]:
     return found
 
 
-def runtime_state_dir() -> Path:
-    return config_dir() / "runtime-state"
-
-
-def detect_running(proc: Path = Path("/proc"),
-                   state_dir: Optional[Path] = None) -> dict[int, RunningGame]:
-    """Return running Steam games keyed by app id, with their live MAKO state."""
+def _local_processes(proc: Path) -> list[ProcessInfo]:
+    """Processes of this user that belong to a Steam app, read from ``proc``."""
     uid = os.getuid()
-    games: dict[int, RunningGame] = {}
-    pid_owner: dict[int, int] = {}
+    processes: list[ProcessInfo] = []
     try:
         entries = list(proc.iterdir())
     except OSError:
-        return {}
+        return []
     for pid_dir in entries:
         if not pid_dir.name.isdigit():
             continue
@@ -123,15 +118,46 @@ def detect_running(proc: Path = Path("/proc"),
             env = _read_environ(pid_dir)
         except OSError:
             continue
+        if not any(env.get(k, "").strip() for k in _APP_ID_ENV_KEYS):
+            continue
+        pid = int(pid_dir.name)
+        processes.append(ProcessInfo(
+            pid=pid,
+            env={k: env[k] for k in hostenv.PROCESS_ENV_KEYS if k in env},
+            libraries=_maps_contains(pid_dir, (_MAKO_LIBRARY, _VKBASALT_LIBRARY)),
+            start_ticks=_start_ticks(pid, proc),
+        ))
+    return processes
+
+
+def runtime_state_dir() -> Path:
+    return config_dir() / "runtime-state"
+
+
+def detect_running(proc: Path = Path("/proc"),
+                   state_dir: Optional[Path] = None,
+                   processes: Optional[list[ProcessInfo]] = None) -> dict[int, RunningGame]:
+    """Return running Steam games keyed by app id, with their live MAKO state."""
+    if processes is None:
+        if hostenv.IN_FLATPAK and proc == Path("/proc"):
+            processes = hostenv.host_processes() or []
+        else:
+            processes = _local_processes(proc)
+    games: dict[int, RunningGame] = {}
+    pid_owner: dict[int, int] = {}
+    start_ticks: dict[int, Optional[int]] = {}
+    for info in processes:
+        env = info.env
         app_id = next((env[k].strip() for k in _APP_ID_ENV_KEYS
                        if env.get(k, "").strip().isdigit() and env[k].strip() != "0"), None)
         if app_id is None:
             continue
-        pid = int(pid_dir.name)
+        pid = info.pid
         game = games.setdefault(int(app_id), RunningGame(int(app_id)))
         game.pids.append(pid)
         pid_owner[pid] = game.app_id
-        found = _maps_contains(pid_dir, (_MAKO_LIBRARY, _VKBASALT_LIBRARY))
+        start_ticks[pid] = info.start_ticks
+        found = info.libraries
         game.mako_loaded |= _MAKO_LIBRARY in found
         game.vkbasalt_loaded |= _VKBASALT_LIBRARY in found
         if _MAKO_LIBRARY in found:
@@ -155,7 +181,7 @@ def detect_running(proc: Path = Path("/proc"),
             data = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, ValueError):
             continue
-        if data.get("process_start_ticks") != _start_ticks(pid, proc):
+        if data.get("process_start_ticks") != start_ticks.get(pid):
             continue  # stale file from an earlier process that reused this pid
         games[owner].contexts.append(RuntimeContext(
             pid=pid,

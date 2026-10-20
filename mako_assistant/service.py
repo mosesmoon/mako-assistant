@@ -4,12 +4,11 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
-import subprocess
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Optional
 
+from . import hostenv
 from . import launch_options as lo
 from . import mako_settings
 from .executables import detect_executables, process_names
@@ -20,8 +19,7 @@ from .steam_cef import CefError, SteamCef
 
 
 def state_path() -> Path:
-    base = os.environ.get("XDG_CONFIG_HOME") or os.path.expanduser("~/.config")
-    return Path(base) / "mako-assistant" / "state.json"
+    return hostenv.xdg_config_home() / "mako-assistant" / "state.json"
 
 
 class SteamMustCloseError(RuntimeError):
@@ -380,20 +378,18 @@ class AssistantService:
     # ---- Steam process control (fallback when CEF is unavailable) -------------
 
     def shutdown_steam(self, progress: Callable[[str], None] = lambda _: None) -> bool:
-        steam_bin = shutil.which("steam") or str(self.steam().root / "steam.sh")
+        steam_bin = hostenv.which("steam") or str(self.steam().root / "steam.sh")
         progress(tr("svc_closing_steam"))
-        subprocess.Popen([steam_bin, "-shutdown"], stdout=subprocess.DEVNULL,
-                         stderr=subprocess.DEVNULL, start_new_session=True)
+        hostenv.spawn([steam_bin, "-shutdown"])
         return self.steam().wait_until_closed(90)
 
     def launch_game(self, app_id: int) -> None:
         """Ask Steam to start the game (it forwards to a running client)."""
         url = f"steam://rungameid/{int(app_id)}"
-        steam_bin = shutil.which("steam")
+        steam_bin = hostenv.which("steam")
         command = [steam_bin, url] if steam_bin else ["xdg-open", url]
         try:
-            subprocess.Popen(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                             start_new_session=True)
+            hostenv.spawn(command)
         except OSError as error:
             raise RuntimeError(tr("svc_launch_failed", error=error)) from error
 
@@ -427,6 +423,5 @@ class AssistantService:
         self._save_state()
 
     def start_steam(self) -> None:
-        steam_bin = shutil.which("steam") or str(self.steam().root / "steam.sh")
-        subprocess.Popen([steam_bin], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                         start_new_session=True)
+        steam_bin = hostenv.which("steam") or str(self.steam().root / "steam.sh")
+        hostenv.spawn([steam_bin])

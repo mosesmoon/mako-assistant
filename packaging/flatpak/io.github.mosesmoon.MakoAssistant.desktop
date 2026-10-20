@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=MAKO 助手
+Name[en]=MAKO Assistant
+Comment=為 Steam 遊戲安裝或移除 MAKO Renderer 補幀 (Mako FG)
+Comment[en]=Install or remove MAKO Renderer frame generation for Steam games
+Exec=mako-assistant
+Icon=io.github.mosesmoon.MakoAssistant
+Terminal=false
+Categories=Game;Utility;
+Keywords=MAKO;Steam;frame generation;

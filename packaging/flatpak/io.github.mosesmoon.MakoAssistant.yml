@@ -1,0 +1,63 @@
+# Flatpak manifest for MAKO Assistant (MAKO 助手). Build with ../../build-flatpak.sh.
+#
+# MAKO Assistant edits Steam's launch options and MAKO Renderer's settings,
+# runs mako-cli and Steam, and watches running games, all on the host. The
+# sandbox therefore needs broad permissions:
+#   --filesystem=host                     Steam libraries can live on any drive;
+#                                         ~/.config/mako-render, ~/.local/bin/mako-launch
+#   --talk-name=org.freedesktop.Flatpak   flatpak-spawn --host: mako-cli validate,
+#                                         steam, and reading the host's /proc
+#   --share=network                       Steam client's CEF port on 127.0.0.1:8080
+#   --socket=x11                          the in-game overlay is an X11 window
+app-id: io.github.mosesmoon.MakoAssistant
+runtime: org.kde.Platform
+runtime-version: '6.10'
+sdk: org.kde.Sdk
+base: com.riverbankcomputing.PyQt.BaseApp
+base-version: '6.10'
+command: mako-assistant
+finish-args:
+  - --share=ipc
+  - --share=network
+  - --socket=x11
+  - --socket=wayland
+  - --device=dri
+  - --filesystem=host
+  - --talk-name=org.freedesktop.Flatpak
+cleanup-commands:
+  - /app/cleanup-BaseApp.sh
+  # Only QtCore, QtGui, QtWidgets and QtDBus are used: drop QtWebEngine & co.
+  # from the PyQt BaseApp (about 250 MB).
+  - rm -rf /app/lib/x86_64-linux-gnu /app/lib/libexec /app/lib/qml /app/resources
+      /app/translations /app/qtwebengine_dictionaries
+  - rm -f /app/lib/libQt6WebEngine* /app/lib/libQt6WebView* /app/lib/libQt6Pdf*
+      /app/lib/libre2* /app/lib/libevent*
+  - cd /app/lib/python3*/site-packages/PyQt6 && for m in Qt*.abi3.so; do
+      case "$m" in QtCore.*|QtGui.*|QtWidgets.*|QtDBus.*) ;; *) rm -f "$m" ;; esac; done
+  - rm -rf /app/lib/python3*/site-packages/PyQt6/bindings /app/lib/python3*/site-packages/PyQt6/uic
+      /app/lib/python3*/site-packages/PyQt6/lupdate /app/lib/python3*/site-packages/pyqt6_webengine*
+modules:
+  - name: mako-assistant
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/share/mako-assistant
+      - cp -r mako_assistant /app/share/mako-assistant/
+      - find /app/share/mako-assistant -name __pycache__ -prune -exec rm -rf {} +
+      - python3 -m compileall -q /app/share/mako-assistant/mako_assistant
+      - install -Dm755 packaging/flatpak/mako-assistant.sh /app/bin/mako-assistant
+      - install -Dm644 packaging/flatpak/io.github.mosesmoon.MakoAssistant.desktop
+        /app/share/applications/io.github.mosesmoon.MakoAssistant.desktop
+      - install -Dm644 packaging/flatpak/io.github.mosesmoon.MakoAssistant.metainfo.xml
+        /app/share/metainfo/io.github.mosesmoon.MakoAssistant.metainfo.xml
+      - install -Dm644 packaging/mako-assistant.png
+        /app/share/icons/hicolor/256x256/apps/io.github.mosesmoon.MakoAssistant.png
+    sources:
+      - type: dir
+        path: ../..
+        skip:
+          - .git
+          - build
+          - dist
+          - screenshot
+          - tests
+          - .flatpak-builder

@@ -6,6 +6,8 @@
 set -euo pipefail
 # Python run during the build must not leave bytecode (it records build paths).
 export PYTHONDONTWRITEBYTECODE=1
+# Always bundle uv's portable Python, never a system interpreter.
+export UV_PYTHON_PREFERENCE=only-managed
 
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 build="$here/build"
@@ -138,10 +140,8 @@ rm -f "$output"
 ARCH=x86_64 APPIMAGE_EXTRACT_AND_RUN=1 "$tool" --no-appstream "$appdir" "$output"
 
 echo "==> 附上更新說明"
-{
-    cat "$release_notes"
-    printf '\n---\n\n`%s`  \nSHA-256: `%s`\n' "$(basename "$output")" "$(sha256sum "$output" | cut -d' ' -f1)"
-} > "$notes_output"
+cp "$release_notes" "$notes_output"
+"$here/packaging/add-checksum.sh" "$notes_output" "$output"
 
 echo
 echo "完成：$output ($(du -h "$output" | cut -f1))"

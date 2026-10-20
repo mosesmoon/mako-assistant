@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.mosesmoon.MakoAssistant</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <name>MAKO Assistant</name>
+  <name xml:lang="zh-TW">MAKO 助手</name>
+  <summary>Install or remove MAKO Renderer frame generation for Steam games</summary>
+  <summary xml:lang="zh-TW">為 Steam 遊戲一鍵安裝或移除 MAKO Renderer 補幀</summary>
+  <description>
+    <p>
+      MAKO Assistant turns MAKO Renderer frame generation (Mako FG) on or off for your Steam
+      games with one click, adjusts each game's MAKO settings, and shows which MAKO features
+      are actually active while a game runs.
+    </p>
+    <p>
+      MAKO Renderer is not included: install it yourself and open MAKO UI once before use.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.mosesmoon.MakoAssistant.desktop</launchable>
+  <url type="homepage">https://github.com/mosesmoon/mako-assistant</url>
+  <url type="bugtracker">https://github.com/mosesmoon/mako-assistant/issues</url>
+  <developer id="io.github.mosesmoon">
+    <name>mosesmoon</name>
+  </developer>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="1.1.1" date="2026-10-20"/>
+  </releases>
+</component>

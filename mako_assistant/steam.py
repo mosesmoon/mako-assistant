@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional
 
-from . import vdf_text
+from . import hostenv, vdf_text
 from .appinfo import AppInfoError, read_appinfo
 
 STEAM_ID64_BASE = 76561197960265728
@@ -225,6 +225,9 @@ class SteamInstallation:
     # ---- process state ----------------------------------------------------
 
     def is_running(self) -> bool:
+        if hostenv.IN_FLATPAK:
+            executables = hostenv.host_steam_executables() or []
+            return any(exe.endswith("/steam") and "ubuntu12_32" in exe for exe in executables)
         for proc in Path("/proc").iterdir():
             if not proc.name.isdigit():
                 continue

@@ -10,7 +10,7 @@ A desktop tool (PyQt6) that installs or removes MAKO Renderer frame generation (
 
 > ⚠ **MAKO Assistant does not include MAKO Renderer.** Install MAKO Renderer yourself and open MAKO UI once (this creates the default settings) before using it.
 
-**Download**: the AppImage is on the [Releases](https://github.com/mosesmoon/mako-assistant/releases) page.
+**Download**: AppImage, `.bin` installer and Flatpak on the [Releases](https://github.com/mosesmoon/mako-assistant/releases) page (see [Install and run](#install-and-run)).
 
 **Full feature guide** (12 languages): [English](docs/features/en.md) · [台灣正體中文](docs/features/zh_TW.md) · [简体中文](docs/features/zh_CN.md) · [日本語](docs/features/ja.md) · [Deutsch](docs/features/de.md) · [Français](docs/features/fr.md) · [Español](docs/features/es.md) · [Italiano](docs/features/it.md) · [ไทย](docs/features/th.md) · [Tiếng Việt](docs/features/vi.md) · [Bahasa Melayu](docs/features/ms.md) · [हिन्दी](docs/features/hi.md)
 
@@ -31,6 +31,7 @@ Multilingual release notes for each version are in [`docs/releases/`](docs/relea
 
 | Version | Date | Summary |
 |---|---|---|
+| [1.1.1](docs/releases/1.1.1.md) | 2026-10-20 | Adds a single-file `.bin` installer and a Flatpak package |
 | [1.1.0](docs/releases/1.1.0.md) | 2026-10-14 | Per-game MAKO settings panel (expand a game to adjust and apply its MAKO profile); redesigned interface with Auto / Dark / Light themes; layout adapts to narrow windows |
 | [1.0.1](docs/releases/1.0.1.md) | 2026-10-03 | Checks that MAKO is installed before installing; fixes the default profile and a game profile matching the same executable; restarts Steam even if applying fails; adds a feature guide in 12 languages |
 | 1.0.0 | 2026-10-02 | First release |
@@ -68,9 +69,19 @@ Steam reads `localconfig.vdf` only when it starts and overwrites it when it exit
 
 ### Install and run
 
-**AppImage (recommended)**: Python and Qt are included, so nothing else needs to be installed.
+Every download from the [Releases](https://github.com/mosesmoon/mako-assistant/releases) page includes Python and Qt, so nothing else needs to be installed. Pick one:
 
-1. Download `MAKO_Assistant-<version>-x86_64.AppImage` from the [Releases](https://github.com/mosesmoon/mako-assistant/releases) page.
+| Download | Best for | Install |
+|---|---|---|
+| `MAKO_Assistant-<version>-x86_64.AppImage` | Trying it without installing | Make it executable and double-click it |
+| `MAKO_Assistant-<version>-x86_64.bin` | A normal app with a menu entry | `sh MAKO_Assistant-<version>-x86_64.bin` |
+| `MAKO_Assistant-<version>-x86_64.flatpak` | Systems that use Flatpak | `flatpak install --user MAKO_Assistant-<version>-x86_64.flatpak` |
+
+All three use the same settings, so you can switch between them at any time.
+
+**AppImage**
+
+1. Download `MAKO_Assistant-<version>-x86_64.AppImage`.
 2. Make it executable: right-click the file → Properties → Permissions, and turn on "Allow executing file as program" (the wording varies by file manager).
 3. Double-click it to open MAKO Assistant.
 
@@ -83,6 +94,22 @@ chmod +x MAKO_Assistant-*-x86_64.AppImage
 
 If it does not start, your system may be missing FUSE; run it with `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` instead.
 
+**Installer (.bin)**: installs for your user only, no root needed. It puts the program in `~/.local/share/mako-assistant`, adds the `mako-assistant` command in `~/.local/bin` and an application menu entry.
+
+```bash
+sh MAKO_Assistant-<version>-x86_64.bin               # install, or upgrade an older version
+sh MAKO_Assistant-<version>-x86_64.bin --uninstall   # remove (your settings are kept)
+```
+
+**Flatpak**: the KDE runtime is downloaded from Flathub during installation (add Flathub first if you have not: `flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`).
+
+```bash
+flatpak install --user MAKO_Assistant-<version>-x86_64.flatpak
+flatpak run io.github.mosesmoon.MakoAssistant
+```
+
+MAKO Assistant edits Steam and MAKO files and watches running games, so the Flatpak is not sandboxed in practice: it can read and write all files, and it runs `mako-cli`, Steam and the running-game check on the host through `flatpak-spawn --host`. Remove it with `flatpak uninstall io.github.mosesmoon.MakoAssistant`.
+
 **From source**: requires Python 3.11+ and PyQt6 (Arch: `sudo pacman -S python-pyqt6`).
 
 ```bash
@@ -94,13 +121,15 @@ The tool's own state (managed games, game list cache, language, theme) is stored
 
 ### For developers
 
-Build the AppImage yourself (outputs `dist/MAKO_Assistant-<version>-x86_64.AppImage` and its release notes):
+Build the release files (each writes to `dist/` and adds its checksum to `dist/MAKO_Assistant-<version>-README.md`):
 
 ```bash
-./build-appimage.sh
+./build-appimage.sh    # AppImage: portable CPython 3.13 + trimmed PyQt6 (needs uv and network)
+./build-installer.sh   # .bin installer: the same files as the AppImage, as a self-extracting script
+./build-flatpak.sh     # Flatpak bundle on the KDE runtime + PyQt BaseApp (needs flatpak-builder)
 ```
 
-The AppImage bundles a portable CPython 3.13 (uv / python-build-standalone) and a trimmed PyQt6, so the target machine needs neither Python nor Qt. Building needs `uv` and network access (PyQt6 wheel and appimagetool downloads).
+The AppImage bundles a portable CPython 3.13 (uv / python-build-standalone) and a trimmed PyQt6, so the target machine needs neither Python nor Qt. Building needs `uv` and network access (PyQt6 wheel and appimagetool downloads). The Flatpak manifest is in `packaging/flatpak/`; the first build downloads the KDE SDK and the PyQt BaseApp from Flathub.
 
 Run the tests:
 
@@ -116,7 +145,7 @@ python3 -m unittest discover -s tests -v
 
 > ⚠ **MAKO 助手不包含 MAKO Renderer。** 使用前請先自行安裝 MAKO Renderer，並開啟一次 MAKO UI（會建立預設設定）。
 
-**下載**：AppImage 請到 [Releases](https://github.com/mosesmoon/mako-assistant/releases) 頁面下載。
+**下載**：AppImage、`.bin` 安裝程式與 Flatpak 版都在 [Releases](https://github.com/mosesmoon/mako-assistant/releases) 頁面（見〈[安裝與執行](#安裝與執行)〉）。
 
 **完整功能介紹**（12 種語言）：[English](docs/features/en.md) · [台灣正體中文](docs/features/zh_TW.md) · [简体中文](docs/features/zh_CN.md) · [日本語](docs/features/ja.md) · [Deutsch](docs/features/de.md) · [Français](docs/features/fr.md) · [Español](docs/features/es.md) · [Italiano](docs/features/it.md) · [ไทย](docs/features/th.md) · [Tiếng Việt](docs/features/vi.md) · [Bahasa Melayu](docs/features/ms.md) · [हिन्दी](docs/features/hi.md)
 
@@ -137,6 +166,7 @@ python3 -m unittest discover -s tests -v
 
 | 版本 | 日期 | 摘要 |
 |---|---|---|
+| [1.1.1](docs/releases/1.1.1.md) | 2026-10-20 | 新增單一檔案 `.bin` 安裝程式與 Flatpak 版 |
 | [1.1.0](docs/releases/1.1.0.md) | 2026-10-14 | 新增每款遊戲的 MAKO 設定面板（展開遊戲即可調整並套用到它的 MAKO profile）；介面全新設計，支援自動 / 深色 / 淺色主題；視窗較窄時版面會自動調整 |
 | [1.0.1](docs/releases/1.0.1.md) | 2026-10-03 | 安裝前先檢查 MAKO 是否已安裝；修正預設 profile 與遊戲 profile 重複比對；套用失敗時也會重開 Steam；新增 12 語系功能介紹 |
 | 1.0.0 | 2026-10-02 | 首次發布 |
@@ -174,9 +204,19 @@ Steam 只在啟動時讀取 `localconfig.vdf`，並在關閉時覆寫它，因�
 
 ### 安裝與執行
 
-**AppImage（建議）**：已內含 Python 與 Qt，不需另外安裝。
+[Releases](https://github.com/mosesmoon/mako-assistant/releases) 頁面的每種下載檔都已內含 Python 與 Qt，不需另外安裝。三選一：
 
-1. 到 [Releases](https://github.com/mosesmoon/mako-assistant/releases) 頁面下載 `MAKO_Assistant-<版本>-x86_64.AppImage`。
+| 下載檔 | 適合 | 安裝方式 |
+|---|---|---|
+| `MAKO_Assistant-<版本>-x86_64.AppImage` | 不想安裝、直接試用 | 設為可執行後點兩下 |
+| `MAKO_Assistant-<版本>-x86_64.bin` | 想要一般應用程式與選單項目 | `sh MAKO_Assistant-<版本>-x86_64.bin` |
+| `MAKO_Assistant-<版本>-x86_64.flatpak` | 使用 Flatpak 的系統 | `flatpak install --user MAKO_Assistant-<版本>-x86_64.flatpak` |
+
+三種版本使用同一份設定，隨時可以互換。
+
+**AppImage**
+
+1. 下載 `MAKO_Assistant-<版本>-x86_64.AppImage`。
 2. 設為可執行：對檔案按右鍵 →「內容」→「權限」，勾選「允許作為程式執行」（各檔案管理員的用詞略有不同）。
 3. 點兩下即可開啟 MAKO 助手。
 
@@ -189,6 +229,22 @@ chmod +x MAKO_Assistant-*-x86_64.AppImage
 
 如果無法開啟，可能是系統缺少 FUSE，可改用 `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` 執行。
 
+**安裝程式（.bin）**：只安裝給目前的使用者，不需要 root。程式放在 `~/.local/share/mako-assistant`，並在 `~/.local/bin` 建立 `mako-assistant` 指令與應用程式選單項目。
+
+```bash
+sh MAKO_Assistant-<版本>-x86_64.bin               # 安裝，或升級舊版
+sh MAKO_Assistant-<版本>-x86_64.bin --uninstall   # 移除（設定會保留）
+```
+
+**Flatpak**：安裝時會從 Flathub 下載 KDE 執行環境（若尚未加入 Flathub，先執行 `flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo`）。
+
+```bash
+flatpak install --user MAKO_Assistant-<版本>-x86_64.flatpak
+flatpak run io.github.mosesmoon.MakoAssistant
+```
+
+MAKO 助手要修改 Steam 與 MAKO 的檔案並偵測執行中的遊戲，所以 Flatpak 版實際上沒有沙盒隔離：它可以讀寫所有檔案，並透過 `flatpak-spawn --host` 在本機執行 `mako-cli`、Steam 與執行中遊戲的偵測。移除：`flatpak uninstall io.github.mosesmoon.MakoAssistant`。
+
 **從原始碼執行**：需要 Python 3.11 以上和 PyQt6（Arch：`sudo pacman -S python-pyqt6`）。
 
 ```bash
@@ -200,13 +256,15 @@ chmod +x MAKO_Assistant-*-x86_64.AppImage
 
 ### 開發者
 
-自行打包 AppImage（輸出 `dist/MAKO_Assistant-<版本>-x86_64.AppImage` 與該版本的更新說明）：
+建置發布檔（都輸出到 `dist/`，並把檢查碼加到 `dist/MAKO_Assistant-<版本>-README.md`）：
 
 ```bash
-./build-appimage.sh
+./build-appimage.sh    # AppImage：可攜式 CPython 3.13 + 精簡 PyQt6（需要 uv 與網路）
+./build-installer.sh   # .bin 安裝程式：內容與 AppImage 相同，包成自解壓縮腳本
+./build-flatpak.sh     # Flatpak：KDE 執行環境 + PyQt BaseApp（需要 flatpak-builder）
 ```
 
-AppImage 內含可攜式 CPython 3.13（uv / python-build-standalone）與精簡過的 PyQt6，目標機器不需安裝 Python 或 Qt。建置需要 `uv` 與網路（下載 PyQt6 wheel 與 appimagetool）。
+AppImage 內含可攜式 CPython 3.13（uv / python-build-standalone）與精簡過的 PyQt6，目標機器不需安裝 Python 或 Qt。建置需要 `uv` 與網路（下載 PyQt6 wheel 與 appimagetool）。Flatpak 設定檔在 `packaging/flatpak/`，第一次建置會從 Flathub 下載 KDE SDK 與 PyQt BaseApp。
 
 執行測試：
 

@@ -155,6 +155,22 @@ chmod +x MAKO_Assistant-*-x86_64.AppImage
 
 起動しない場合は、システムに FUSE がない可能性があります。代わりに `./MAKO_Assistant-*-x86_64.AppImage --appimage-extract-and-run` で実行してください。
 
+**インストーラー（.bin）**：現在のユーザーだけにインストールし（root 不要）、`mako-assistant` コマンドとアプリケーションメニューの項目を作成します。Python と Qt を同梱しています。
+
+```bash
+sh MAKO_Assistant-<バージョン>-x86_64.bin               # インストール、または旧バージョンからのアップデート
+sh MAKO_Assistant-<バージョン>-x86_64.bin --uninstall   # 削除（設定は残ります）
+```
+
+**Flatpak**：インストール時に KDE ランタイムを Flathub からダウンロードします。MAKO アシスタントは Steam と MAKO のファイルを編集し、実行中のゲームを検出する必要があるため、Flatpak 版はすべてのファイルを読み書きでき、`mako-cli`、Steam、実行中ゲームの検出を `flatpak-spawn --host` でホスト側で実行します。実質的にサンドボックスはありません。
+
+```bash
+flatpak install --user MAKO_Assistant-<バージョン>-x86_64.flatpak
+flatpak run io.github.mosesmoon.MakoAssistant
+```
+
+どの版も同じ設定を使うので、いつでも切り替えられます。
+
 **ソースから実行**：Python 3.11 以降と PyQt6 が必要です（Arch：`sudo pacman -S python-pyqt6`）。
 
 ```bash
