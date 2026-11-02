@@ -22,7 +22,7 @@ El Asistente MAKO reúne estos pasos en un solo botón y, mientras un juego est�
 
 Haz esto primero:
 
-1. **Instala MAKO Renderer (versión independiente)** siguiendo las instrucciones de instalación del propio MAKO. Después de instalarlo, debe existir `~/.local/bin/mako-launch`.
+1. **Instala MAKO Renderer (versión independiente)** siguiendo las instrucciones de instalación del propio MAKO. Después de instalarlo, debe existir `~/.local/bin/mako-launch` o `/usr/bin/mako-launch`.
 2. **Abre MAKO UI una vez** para crear los ajustes predeterminados. Así se crean `~/.config/mako-render/conf.toml` y el perfil predeterminado `mako`. Cada perfil de juego que crea el Asistente MAKO es una copia de este perfil predeterminado.
 3. **Instala Steam.** Se admiten el paquete nativo (`~/.local/share/Steam`, `~/.steam`) y las versiones Flatpak y Snap.
 
@@ -47,6 +47,8 @@ Al pulsar «Instalar Mako FG», la herramienta:
 - **Detecta el ejecutable real del juego** a partir de la información de la aplicación de Steam. Tiene en cuenta los lanzadores (en ese caso busca el programa real del juego en la carpeta de instalación) y los `*-Shipping.exe` de Unreal Engine, y omite los programas auxiliares habituales.
 - **Crea un perfil de juego de MAKO**: copia el perfil predeterminado `mako` en un perfil propio del juego en `conf.toml` y escribe los metadatos de perfil de MAKO. **Tanto MAKO UI como el plugin de Decky ven este perfil y pueden editarlo directamente.**
 - **Evita asociaciones duplicadas**: si el perfil predeterminado `mako` también está asociado al ejecutable de este juego, el ejecutable se quita de `mako`, para que el juego use solo su propio perfil. Si el perfil de otro juego está asociado al mismo ejecutable, verás un aviso, pero no se cambia nada automáticamente.
+
+El Asistente MAKO encuentra solo el `mako-launch` instalado: `~/.local/bin/mako-launch` del instalador de MAKO o, si falta, el del PATH, por ejemplo `/usr/bin/mako-launch` del paquete de Arch. Esa ruta exacta es la que se escribe en las opciones de lanzamiento.
 
 ### 3. Cómo se escriben las opciones de lanzamiento
 
@@ -93,11 +95,13 @@ Si un juego tiene Mako FG instalado pero MAKO no se ha cargado realmente, tambi�
 
 Cada tarjeta de juego tiene un botón de flecha en el extremo derecho. Al pulsarlo se abren justo debajo los **Ajustes de MAKO** de ese juego, con las mismas opciones que MAKO UI:
 
-- **Generación de fotogramas**: multiplicador fijo o modo Adaptativo, Multiplicador / Multiplicador máximo (0x pausa la generación de fotogramas sin borrar nada), escala Flow y modos de rendimiento.
-- **Adaptativo**: FPS objetivo, límite estable, prioridad de fotogramas reales y opciones de cadencia (solo se muestran en modo Adaptativo).
+- **Generación de fotogramas**: multiplicador fijo o modo Adaptativo, Multiplicador / Multiplicador máximo (0x pausa la generación de fotogramas sin borrar nada), escala Flow y modos de rendimiento. El margen de GPU mantiene libre el 5–20 % de la GPU durante la generación de fotogramas (MAKO Renderer 4.6, GPU AMD).
+- **Adaptativo**: FPS objetivo, límite estable, prioridad de fotogramas reales y opciones de cadencia (solo se muestran en modo Adaptativo). «Usar la frecuencia de actualización de la pantalla» toma la frecuencia de la pantalla como objetivo (MAKO Renderer 4.5+).
 - **Ritmo y límites**: límite de FPS base, VRR de Gamescope y protección de la frecuencia de actualización.
 - **Escalado espacial**: método de escalado, factor, nitidez y supermuestreo.
-- **Compatibilidad**: compatibilidad del número de imágenes de la swapchain.
+- **HDR y compatibilidad**: calidad HDR (Calidad, Equilibrado o Rendimiento; solo se usa con el HDR activado en MAKO UI) y compatibilidad del número de imágenes de la swapchain.
+
+**Ajustes con batería y con alimentación externa (MAKO Renderer 4.5+)**: si el juego tiene ajustes distintos con batería y con alimentación externa, en «Editando los ajustes de» eliges «Ajustes base», «Portátil (batería)» o «En base (alimentación externa)». El panel muestra los valores de ese conjunto, «Aplicar» solo escribe en él y la nota bajo el selector indica cuál usa MAKO ahora. Aplica o descarta los cambios antes de cambiar de conjunto. Los nuevos perfiles de juego copian ambos conjuntos del perfil predeterminado.
 
 Cada opción tiene una breve explicación debajo. Los cambios se guardan primero de forma provisional y el panel indica cuántos faltan por aplicar. «Aplicar» los escribe en el perfil MAKO propio del juego y «Descartar» vuelve a los valores anteriores. La mayoría de los ajustes se aplican con el juego en marcha; los marcados con «Reiniciar» se aplican la próxima vez que inicies el juego. Los cambios sin aplicar se conservan si vuelves a escanear o cambias de idioma.
 
@@ -135,7 +139,7 @@ La primera vez, el idioma sigue al del sistema. Puedes cambiarlo en cualquier mo
 - Antes de cada cambio se hace una copia de seguridad de `conf.toml` y del `localconfig.vdf` de Steam (`*.mako-assistant.bak`).
 - Después de escribir `conf.toml`, la herramienta lo comprueba con `mako-cli validate`. Si MAKO lo rechaza, el archivo original se restaura automáticamente.
 - `localconfig.vdf` nunca se edita directamente mientras Steam está abierto.
-- Al pulsar «Instalar Mako FG», la herramienta comprueba primero que MAKO Renderer está instalado (existe `~/.local/bin/mako-launch`) y que MAKO UI ha creado sus ajustes. Si falta alguno de los dos, no se cambia nada y se te indica que instales MAKO primero.
+- Al pulsar «Instalar Mako FG», la herramienta comprueba primero que MAKO Renderer está instalado (existe `~/.local/bin/mako-launch` o `/usr/bin/mako-launch`) y que MAKO UI ha creado sus ajustes. Si falta alguno de los dos, no se cambia nada y se te indica que instales MAKO primero.
 - Los valores del panel de ajustes se comprueban con los rangos que acepta MAKO antes de escribir nada, se escriben solo en el perfil propio del juego y se verifican con `mako-cli validate` como cualquier otro cambio.
 
 ## Instalar el Asistente MAKO

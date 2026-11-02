@@ -1,18 +1,24 @@
 """Per-game MAKO Renderer settings: what each profile field accepts.
 
 Ranges and choices were checked against ``mako-cli validate`` (MAKO Renderer
-standalone 4.0); labels follow MAKO UI. This module has no Qt dependency so
+standalone 4.0 and 4.6); labels follow MAKO UI. This module has no Qt dependency so
 the service layer and the tests can use it.
 
 Every field maps to one key of a ``[[profile]]`` table in ``conf.toml``,
 except the "ratio" fields: MAKO UI shows "0x" in the multiplier lists, which
 is not a multiplier value but ``frame_generation_enabled = false`` (a live
 pause). Picking 2x–5x writes the multiplier and resumes generation.
+
+Since MAKO Renderer 4.5 a profile may hold separate AC and battery settings:
+``[profile.handheld]`` and ``[profile.docked]`` sub-tables that override the
+profile's own ("base") values. MAKO UI writes both tables in full, so while
+they exist the panel edits one set at a time (see ``POWER_SETS``).
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Callable, Optional
 
 # Fallbacks for keys a profile does not have yet. The default profile `mako`
@@ -24,15 +30,17 @@ DEFAULTS: dict[str, Any] = {
     "adaptive": False,
     "multiplier": 2,
     "adaptive_max_multiplier": 3,
-    "target_fps": 90,
+    "target_fps": 120,
+    "adaptive_target_refresh_rate": False,
     "adaptive_auto_base_fps_cap": False,
     "adaptive_fractional_real_frame_priority": "auto",
     "adaptive_stable_cadence": True,
     "dynamic_cadence_recovery": False,
     "dynamic_cadence_probe_interval_seconds": 2.0,
-    "flow_scale": 0.85,
+    "flow_scale": 0.8,
     "performance_mode": False,
     "ultra_performance": False,
+    "gpu_headroom_percent": 0,
     "base_fps_cap": 0,
     "gamescope_vrr_mode": "follow-steam",
     "frame_generation_refresh_threshold": 0,
@@ -42,7 +50,11 @@ DEFAULTS: dict[str, Any] = {
     "scaling_sharpness": 0.8,
     "scaling_supersampling": False,
     "swapchain_image_count_compatibility": False,
+    "hdr_quality": "performance",
 }
+
+# Power-setting sets of a profile: the profile itself, then MAKO's sub-tables.
+POWER_SETS = ("base", "handheld", "docked")
 
 Values = dict[str, Any]
 
@@ -94,10 +106,16 @@ SECTIONS: tuple[Section, ...] = (
               enabled=lambda v: _fg_on(v) and not v.get("ultra_performance")),
         Field("ultra_performance", "toggle", "set_ultra", "set_ultra_desc", restart=True,
               enabled=_fg_on),
+        Field("gpu_headroom_percent", "segment", "set_headroom", "set_headroom_desc",
+              options=((0, "set_off"), (5, "=5%"), (10, "=10%"), (15, "=15%"), (20, "=20%")),
+              enabled=_fg_on),
     )),
     Section("set_sec_adaptive", icon="gauge", visible=lambda v: bool(v.get("adaptive")), fields=(
+        Field("adaptive_target_refresh_rate", "toggle", "set_match_refresh",
+              "set_match_refresh_desc"),
         Field("target_fps", "number", "set_target_fps", "set_target_fps_desc",
-              minimum=10, maximum=1000, unit="fps"),
+              minimum=10, maximum=1000, unit="fps",
+              enabled=lambda v: not v.get("adaptive_target_refresh_rate")),
         Field("adaptive_auto_base_fps_cap", "toggle", "set_steady_cap", "set_steady_cap_desc"),
         Field("adaptive_fractional_real_frame_priority", "segment", "set_priority",
               "set_priority_desc",
@@ -135,6 +153,9 @@ SECTIONS: tuple[Section, ...] = (
               enabled=lambda v: bool(v.get("scaling_enabled"))),
     )),
     Section("set_sec_compat", icon="shield", fields=(
+        Field("hdr_quality", "segment", "set_hdr_quality", "set_hdr_quality_desc",
+              options=(("quality", "set_hdr_q_quality"), ("balanced", "set_hdr_q_balanced"),
+                       ("performance", "set_hdr_q_performance"))),
         Field("swapchain_image_count_compatibility", "toggle", "set_swapchain",
               "set_swapchain_desc", restart=True),
     )),
@@ -145,13 +166,62 @@ FIELDS: dict[str, Field] = {f.key: f for s in SECTIONS for f in s.fields}
 WRITABLE = frozenset(FIELDS) | {"frame_generation_enabled"}
 
 
-def effective_values(profile: Values, default_profile: Optional[Values] = None) -> Values:
-    """The values the panel shows: the profile's own, else the default profile's, else ours."""
+def power_sets(profile: Values) -> bool:
+    """True when the profile keeps separate AC and battery settings (MAKO 4.5+)."""
+    return isinstance(profile.get("handheld"), dict) and isinstance(profile.get("docked"), dict)
+
+
+def effective_values(profile: Values, default_profile: Optional[Values] = None,
+                     power_set: str = "base") -> Values:
+    """The values the panel shows: the set's own, else the profile's, else the
+    default profile's, else ours."""
     base = dict(DEFAULTS)
     if default_profile:
         base.update({k: v for k, v in default_profile.items() if k in DEFAULTS})
     base.update({k: v for k, v in profile.items() if k in DEFAULTS})
+    if power_set != "base" and power_sets(profile):
+        base.update({k: v for k, v in profile[power_set].items() if k in DEFAULTS})
     return base
+
+
+def active_power_source(root: Path = Path("/sys/class/power_supply")) -> str:
+    """Which set MAKO Renderer uses right now: handheld, docked or base (unknown).
+
+    Mirrors ``ls::detectPowerSource`` in MAKO Renderer 4.5+: any online mains
+    or USB supply means docked; a battery with every supply offline means
+    handheld; anything else is unknown, where MAKO falls back to the base set.
+    """
+    def read(path: Path) -> str:
+        try:
+            return path.read_text(encoding="utf-8").splitlines()[0].strip()
+        except (OSError, IndexError):
+            return ""
+
+    try:
+        entries = sorted(root.iterdir())
+    except OSError:
+        return "base"
+    if len(entries) > 64:
+        return "base"
+    battery = powered = supply = incomplete = False
+    for entry in entries:
+        if read(entry / "scope") == "Device":
+            continue
+        kind = read(entry / "type")
+        if kind == "Battery":
+            if read(entry / "present") != "0":
+                battery = True
+        elif kind in ("Mains", "USB", "USB_C", "USB_PD", "USB_DCP", "USB_CDP", "USB_ACA",
+                      "Wireless"):
+            supply = True
+            online = read(entry / "online")
+            powered |= online == "1"
+            incomplete |= online != "0"
+        elif not kind:
+            incomplete = True
+    if powered:
+        return "docked"
+    return "handheld" if battery and supply and not incomplete else "base"
 
 
 def ratio_value(values: Values, key: str) -> int:

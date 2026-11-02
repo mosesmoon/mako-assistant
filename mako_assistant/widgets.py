@@ -304,7 +304,9 @@ class _FieldRow(QWidget):
             head.addWidget(self.value_label)
             layout.addLayout(head)
             if spec.kind == "segment":
-                self.control = Segmented([(v, tr(k)) for v, k in spec.options])
+                # "=text" is shown as is (e.g. "10%"); anything else is an i18n key.
+                self.control = Segmented([(v, k[1:] if k.startswith("=") else tr(k))
+                                          for v, k in spec.options])
                 self.control.changed.connect(lambda v: on_change(spec.key, v))
             elif spec.kind == "ratio":
                 options = [(0, "0x")] + [(n, f"{n}x") for n in range(int(spec.minimum),
@@ -326,7 +328,10 @@ class _FieldRow(QWidget):
                 if spec.off_at_zero:
                     self.control.setSpecialValueText(tr("set_off"))
                 self.control.setFixedWidth(130)
-                self.control.setButtonSymbols(QSpinBox.ButtonSymbols.NoButtons)
+                # Newer Qt ignores the style sheet's padding for the spin box text.
+                self.control.lineEdit().setTextMargins(10, 0, 0, 0)
+                # The step buttons are hidden by the style sheet (width 0). NoButtons
+                # together with the padded style sheet hides the text in Qt 6.12.
                 self.control.valueChanged.connect(lambda v: on_change(spec.key, int(v)))
             layout.addWidget(self.control)
         if spec.desc:
@@ -384,6 +389,7 @@ class SettingsPanel(QFrame):
 
     apply_requested = pyqtSignal(int, dict)
     pending_changed = pyqtSignal(int, dict)
+    power_set_requested = pyqtSignal(int, str)
 
     # Sections per column for 3, 2 and 1 columns (the panel reflows with the window width).
     LAYOUTS = {
@@ -402,6 +408,7 @@ class SettingsPanel(QFrame):
         self.base: Optional[dict] = None
         self.pending: dict = {}
         self.profile = ""
+        self.power_set = "base"
         outer = QVBoxLayout(self)
         outer.setContentsMargins(4, 16, 4, 4)
         outer.setSpacing(14)
@@ -415,6 +422,25 @@ class SettingsPanel(QFrame):
         outer.addLayout(head)
         self.note = _label(tr("set_live_note"), "note", wrap=True)
         outer.addWidget(self.note)
+
+        # MAKO Renderer 4.5+: separate settings for battery and AC power.
+        self.power_box = QWidget()
+        self.power_box.setObjectName("transparent")
+        power = QVBoxLayout(self.power_box)
+        power.setContentsMargins(0, 0, 0, 0)
+        power.setSpacing(6)
+        power_row = QHBoxLayout()
+        power_row.addWidget(_label(tr("set_power_label"), "fieldLabel"))
+        self.power_selector = Segmented([(key, tr(f"set_power_{key}")) for key in ms.POWER_SETS],
+                                        compact=True)
+        self.power_selector.changed.connect(self._on_power_set)
+        power_row.addWidget(self.power_selector)
+        power_row.addStretch(1)
+        power.addLayout(power_row)
+        self.power_note = _label("", "fieldDesc", wrap=True)
+        power.addWidget(self.power_note)
+        self.power_box.setVisible(False)
+        outer.addWidget(self.power_box)
 
         self.message = _label(tr("set_loading"), "note", wrap=True)
         outer.addWidget(self.message)
@@ -490,6 +516,8 @@ class SettingsPanel(QFrame):
         self.footer.setVisible(ready)
         self.note.setVisible(ready)
         self.profile_chip.setVisible(ready)
+        if not ready:
+            self.power_box.setVisible(False)
         self.message.setVisible(not ready)
         if state == "loading":
             self.message.setText(tr("set_loading"))
@@ -507,10 +535,24 @@ class SettingsPanel(QFrame):
             return
         self.base = dict(settings.values)
         self.profile = settings.profile
+        self.power_set = getattr(settings, "power_set", "base")
         self.profile_chip.setText(tr("set_profile", profile=settings.profile))
         self.pending = {k: v for k, v in (pending or {}).items() if self.base.get(k) != v}
         self._show_state("ready")
+        separate = bool(getattr(settings, "power_sets", False))
+        self.power_box.setVisible(separate)
+        if separate:
+            active = getattr(settings, "active_power", "base")
+            self.power_selector.set_value(self.power_set)
+            self.power_note.setText(tr("set_power_note", mode=tr(f"set_power_{active}")))
         self._refresh()
+
+    def _on_power_set(self, power_set: str) -> None:
+        if self.pending:          # the selector is disabled then; keep it consistent anyway
+            self.power_selector.set_value(self.power_set)
+            return
+        if power_set != self.power_set:
+            self.power_set_requested.emit(self.app_id, power_set)
 
     def values(self) -> dict:
         values = dict(self.base or {})
@@ -546,6 +588,8 @@ class SettingsPanel(QFrame):
         count = len(self.pending)
         self.apply_btn.setEnabled(count > 0)
         self.revert_btn.setEnabled(count > 0)
+        self.power_selector.setEnabled(count == 0)
+        self.power_selector.setToolTip(tr("set_power_locked") if count else "")
         if count:
             self.state_label.setObjectName("pending")
             self.state_label.setText(tr("set_pending", count=count))

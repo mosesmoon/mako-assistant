@@ -54,6 +54,9 @@ class GameSettings:
     app_id: int
     profile: str
     values: dict
+    power_set: str = "base"          # base | handheld | docked: the set `values` shows
+    power_sets: bool = False         # the profile keeps separate AC/battery settings
+    active_power: str = "base"       # the set MAKO Renderer uses right now
 
 
 @dataclass
@@ -112,7 +115,23 @@ class AssistantService:
         return SteamInstallation(self._steam_root)
 
     def mako_launch_path(self) -> Path:
-        return self._mako_launch or Path(os.path.expanduser(lo.MAKO_LAUNCH))
+        """The installed mako-launch: MAKO's installer puts it in ~/.local/bin,
+        packages (e.g. Arch, MAKO Renderer 4.5+) in a PATH directory such as /usr/bin."""
+        if self._mako_launch is not None:
+            return self._mako_launch
+        home = Path(os.path.expanduser(lo.MAKO_LAUNCH))
+        if home.is_file() and os.access(home, os.X_OK):
+            return home
+        found = hostenv.which("mako-launch")
+        return Path(found) if found else home
+
+    def launch_option_wrapper(self, launcher: Path) -> str:
+        """How the launcher is written into Steam's launch options."""
+        home = Path(os.path.expanduser(lo.MAKO_LAUNCH))
+        if launcher == home:
+            return lo.MAKO_LAUNCH   # the same "~/.local/bin/..." spelling MAKO UI uses
+        text = str(launcher)
+        return f'"{text}"' if any(c.isspace() for c in text) else text
 
     def require_mako(self) -> MakoConfig:
         """Confirm MAKO Renderer is installed and set up before touching Steam.
@@ -121,7 +140,11 @@ class AssistantService:
         installed would leave the game unable to start.
         """
         launcher = self.mako_launch_path()
-        if not (launcher.is_file() and os.access(launcher, os.X_OK)):
+        # Inside Flatpak a launcher found on the host's PATH (e.g. /usr/bin) is
+        # not visible in the sandbox; hostenv.which() already confirmed it.
+        visible = launcher.is_file() and os.access(launcher, os.X_OK)
+        on_host_path = hostenv.IN_FLATPAK and launcher != Path(os.path.expanduser(lo.MAKO_LAUNCH))
+        if not (visible or on_host_path):
             raise FileNotFoundError(tr("svc_no_launcher", path=launcher))
         return self.mako()
 
@@ -296,7 +319,8 @@ class AssistantService:
         names = process_names(paths)
 
         current = self.read_launch_options(steam, [app_id]).get(app_id, "")
-        route = self.apply_launch_options({app_id: lo.add_mako(current)})
+        wrapper = self.launch_option_wrapper(self.mako_launch_path())
+        route = self.apply_launch_options({app_id: lo.add_mako(current, wrapper)})
 
         message = tr("svc_injected", name=localized_name(game.name, game.names))
         profile_name = None
@@ -354,19 +378,32 @@ class AssistantService:
 
     # ---- per-game MAKO settings ---------------------------------------------------
 
-    def game_settings(self, app_id: int) -> Optional[GameSettings]:
-        """The settings panel's view of a game's MAKO profile, or None without one."""
+    def game_settings(self, app_id: int, power_set: Optional[str] = None) -> Optional[GameSettings]:
+        """The settings panel's view of a game's MAKO profile, or None without one.
+
+        With separate AC/battery settings, `power_set` picks the set to show;
+        by default the one MAKO Renderer uses right now.
+        """
         config = self.mako()
         found = config.game_settings(app_id)
         if found is None:
             return None
         name, profile, default = found
-        return GameSettings(app_id, name, mako_settings.effective_values(profile, default))
+        active = mako_settings.active_power_source()
+        separate = mako_settings.power_sets(profile)
+        if not separate:
+            chosen = "base"
+        elif power_set in mako_settings.POWER_SETS:
+            chosen = power_set
+        else:
+            chosen = active
+        return GameSettings(app_id, name, mako_settings.effective_values(profile, default, chosen),
+                            power_set=chosen, power_sets=separate, active_power=active)
 
-    def apply_game_settings(self, app_id: int, changes: dict) -> str:
+    def apply_game_settings(self, app_id: int, changes: dict, power_set: str = "base") -> str:
         """Write changed settings to the game's profile (backup, validate, roll back on error)."""
         config = self.mako()
-        name, changed = config.update_game_settings(app_id, changes)
+        name, changed = config.update_game_settings(app_id, changes, power_set)
         if not changed:
             return tr("svc_settings_unchanged", profile=name)
         config.save()

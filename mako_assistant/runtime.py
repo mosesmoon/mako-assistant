@@ -234,7 +234,9 @@ def describe(game: RunningGame) -> tuple[str, list[Feature], list[str]]:
     features: list[Feature] = []
 
     if context.frame_generation_active:
-        if applied.get("adaptive"):
+        if applied.get("adaptive") and applied.get("adaptive_target_refresh_rate"):
+            parts = [tr("fg_adaptive_refresh", max=applied.get("adaptive_max_multiplier"))]
+        elif applied.get("adaptive"):
             parts = [tr("fg_adaptive", fps=applied.get("target_fps"),
                         max=applied.get("adaptive_max_multiplier"))]
         else:
@@ -246,6 +248,9 @@ def describe(game: RunningGame) -> tuple[str, list[Feature], list[str]]:
             parts.append(tr("fg_perf"))
         if applied.get("ultra_performance"):
             parts.append(tr("fg_ultra"))
+        headroom = applied.get("gpu_headroom_percent")
+        if isinstance(headroom, int) and not isinstance(headroom, bool) and headroom > 0:
+            parts.append(tr("fg_headroom", pct=headroom))
         features.append(Feature(tr("feat_fg"), True, " · ".join(parts)))
     else:
         reason = "fg_disabled" if not applied.get("frame_generation_enabled") else "fg_inactive"

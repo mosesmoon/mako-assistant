@@ -22,7 +22,7 @@ MAKO 助手把這些步驟整合成一個按鈕，並在遊戲執行時告訴你
 
 請先自行完成：
 
-1. **安裝 MAKO Renderer（standalone 版）**，依照 MAKO 本身的安裝說明完成。安裝後應該要有 `~/.local/bin/mako-launch`。
+1. **安裝 MAKO Renderer（standalone 版）**，依照 MAKO 本身的安裝說明完成。安裝後應該要有 `~/.local/bin/mako-launch` 或 `/usr/bin/mako-launch`。
 2. **開啟一次 MAKO UI**，建立預設設定。這會產生 `~/.config/mako-render/conf.toml` 和預設 profile `mako`。MAKO 助手幫遊戲建立的 profile，都以這個預設 profile 為範本。
 3. **安裝 Steam**。支援原生版（`~/.local/share/Steam`、`~/.steam`）、Flatpak 版與 Snap 版。
 
@@ -47,6 +47,8 @@ MAKO 助手把這些步驟整合成一個按鈕，並在遊戲執行時告訴你
 - **偵測真正的遊戲執行檔**：從 Steam 的遊戲資訊判斷，能處理啟動器（自動改找安裝目錄中的實際遊戲程式）與 Unreal 引擎的 `*-Shipping.exe`，並排除常見的輔助程式。
 - **建立 MAKO 遊戲設定**：以預設 profile `mako` 為範本，在 `conf.toml` 建立這款遊戲專屬的 profile，並寫入 MAKO 的 profile 中繼資料。**MAKO UI 和 Decky 外掛都看得到、也能直接修改**這個 profile。
 - **避免重複比對**：如果預設 profile `mako` 也比對到這款遊戲的執行檔，會自動從 `mako` 移除，讓遊戲只套用自己的 profile。如果另一款遊戲的 profile 也比對到同一個執行檔，會提示你，但不會自動修改。
+
+MAKO 助手會自動找到已安裝的 `mako-launch`：優先使用 MAKO 安裝程式放的 `~/.local/bin/mako-launch`，沒有的話改用 PATH 中的（例如 Arch 套件安裝的 `/usr/bin/mako-launch`），並把這個實際路徑寫入啟動選項。
 
 ### 3. 啟動選項的寫入方式
 
@@ -93,11 +95,13 @@ Steam 只在啟動時讀取啟動選項，並在關閉時覆寫設定檔。為�
 
 每款遊戲卡片的最右側都有一個箭頭按鈕，按下去就會在下方展開這款遊戲的 **MAKO 設定**，選項和 MAKO UI 相同：
 
-- **補幀**：固定倍數或自適應模式、倍數 / 最高倍數（0x 會暫停補幀，不會移除任何設定）、Flow 比例與效能模式。
-- **自適應**：目標 FPS、穩定上限、真實畫格優先順序與節奏選項（只有自適應模式才會顯示）。
+- **補幀**：固定倍數或自適應模式、倍數 / 最高倍數（0x 會暫停補幀，不會移除任何設定）、Flow 比例與效能模式。「GPU 餘裕」會在補幀時保留 5–20% 的 GPU 運算能力（MAKO Renderer 4.6，AMD GPU）。
+- **自適應**：目標 FPS、穩定上限、真實畫格優先順序與節奏選項（只有自適應模式才會顯示）。「配合螢幕更新率」會以螢幕的更新率作為目標（MAKO Renderer 4.5 以上）。
 - **節奏與限制**：基礎 FPS 上限、Gamescope VRR 與更新率保護。
 - **空間縮放**：縮放方式、縮放倍率、銳利度與超取樣。
-- **相容性**：交換鏈影像數量相容性。
+- **HDR 與相容性**：HDR 畫質（畫質、平衡或效能；只在 MAKO UI 開啟 HDR 時使用）與交換鏈影像數量相容性。
+
+**電池與接電源兩套設定（MAKO Renderer 4.5 以上）**：遊戲若有電池與接電源兩套設定，可以在「正在編輯的設定」選擇「基本設定」、「掌機（電池）」或「底座（接電源）」。面板會顯示那一套的數值，按「套用」只會寫入那一套，切換鈕下方也會說明 MAKO 目前使用的是哪一套。切換前請先套用或放棄目前的變更。新建立的遊戲設定檔會從預設設定檔複製這兩套設定。
 
 每個選項下方都有簡短說明。調整後的變更會先暫存，面板會顯示還有幾項尚未套用；按「套用」寫入這款遊戲自己的 MAKO profile，按「放棄變更」則回到原本的值。大部分設定在遊戲執行中就會生效，標示「需重啟」的項目要在下次啟動遊戲時才會生效。尚未套用的變更在重新掃描或切換語言後都會保留。
 
@@ -135,7 +139,7 @@ MAKO 助手開著時啟動遊戲，一偵測到 MAKO 已經在遊戲中運作，
 - 修改 `conf.toml` 和 Steam 的 `localconfig.vdf` 前，都會先備份（`*.mako-assistant.bak`）。
 - 寫入 `conf.toml` 後，會用 `mako-cli validate` 驗證。MAKO 不接受的話，會自動還原。
 - Steam 執行中時，絕不直接修改 `localconfig.vdf`。
-- 按「安裝 Mako FG」時，會先確認 MAKO Renderer 已安裝（`~/.local/bin/mako-launch` 存在）且 MAKO UI 已建立設定。任一項不符合，就不會修改任何設定，並提示你先安裝 MAKO。
+- 按「安裝 Mako FG」時，會先確認 MAKO Renderer 已安裝（`~/.local/bin/mako-launch` 或 `/usr/bin/mako-launch` 存在）且 MAKO UI 已建立設定。任一項不符合，就不會修改任何設定，並提示你先安裝 MAKO。
 - 每款遊戲設定面板的數值，寫入前會先檢查是否在 MAKO 接受的範圍內，只會寫入這款遊戲自己的 profile，並和其他修改一樣以 `mako-cli validate` 驗證。
 
 ## 安裝 MAKO 助手

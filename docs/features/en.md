@@ -22,7 +22,7 @@ MAKO Assistant turns these steps into one button, and while a game is running it
 
 Do these first:
 
-1. **Install MAKO Renderer (standalone)** by following MAKO's own installation instructions. After installing, `~/.local/bin/mako-launch` should exist.
+1. **Install MAKO Renderer (standalone)** by following MAKO's own installation instructions. After installing, `~/.local/bin/mako-launch` or `/usr/bin/mako-launch` should exist.
 2. **Open MAKO UI once** to create the default settings. This creates `~/.config/mako-render/conf.toml` and the default profile `mako`. Every game profile MAKO Assistant creates is a copy of this default profile.
 3. **Install Steam.** The native package (`~/.local/share/Steam`, `~/.steam`), Flatpak and Snap versions are supported.
 
@@ -47,6 +47,8 @@ When you click "Install Mako FG", the tool:
 - **Detects the real game executable** from Steam's app information. It handles launchers (it looks for the actual game program in the install folder instead) and Unreal Engine `*-Shipping.exe` files, and skips common helper programs.
 - **Creates a MAKO game profile**: it copies the default profile `mako` into a profile of the game's own in `conf.toml` and writes MAKO's profile metadata. **MAKO UI and the Decky plugin both see this profile and can edit it directly.**
 - **Prevents duplicate matches**: if the default profile `mako` also matches this game's executable, the executable is removed from `mako`, so the game uses only its own profile. If another game's profile matches the same executable, you get a warning, but nothing is changed automatically.
+
+MAKO Assistant finds the installed `mako-launch` by itself: `~/.local/bin/mako-launch` from MAKO's installer, or, if that is missing, the one on your PATH, such as `/usr/bin/mako-launch` from the Arch package. That exact path is what goes into the launch options.
 
 ### 3. How launch options are written
 
@@ -93,11 +95,13 @@ If a game has Mako FG installed but MAKO is not actually loaded, that is shown t
 
 Every game has an arrow button at the right end of its card. Click it to open that game's **MAKO settings** right below it, with the same options as MAKO UI:
 
-- **Frame Generation**: fixed multiplier or Adaptive mode, Multiplier / Maximum multiplier (0x pauses frame generation without removing anything), Flow scale and performance modes.
-- **Adaptive**: target FPS, steady cap, real-frame priority and cadence options (shown only in Adaptive mode).
+- **Frame Generation**: fixed multiplier or Adaptive mode, Multiplier / Maximum multiplier (0x pauses frame generation without removing anything), Flow scale and performance modes. GPU Headroom keeps 5–20% of the GPU free during Frame Generation (MAKO Renderer 4.6, AMD GPUs).
+- **Adaptive**: target FPS, steady cap, real-frame priority and cadence options (shown only in Adaptive mode). Match display refresh rate uses the display's refresh rate as the target (MAKO Renderer 4.5+).
 - **Pacing & limits**: base FPS cap, Gamescope VRR and the refresh-rate guard.
 - **Spatial Scaling**: scaling method, scale factor, sharpness and supersampling.
-- **Compatibility**: swapchain image count compatibility.
+- **HDR & compatibility**: HDR quality (Quality, Balanced or Performance; only used when HDR is on in MAKO UI) and swapchain image count compatibility.
+
+**Battery and AC settings (MAKO Renderer 4.5+)**: if the game has separate settings for battery and AC power, "Editing settings for" lets you choose Base settings, Handheld (Battery) or Docked (AC Power). The panel shows the values of that set, "Apply" writes only to it, and the note below the switch tells you which set MAKO uses right now. Apply or discard your changes before switching sets. New game profiles copy both sets from the default profile.
 
 Each option has a short explanation underneath. Your changes are collected first, and the panel shows how many are not applied yet. Click "Apply" to write them into the game's own MAKO profile, or "Discard" to go back. Most settings take effect while the game is running; items marked "Restart" take effect the next time the game starts. Changes you have not applied yet are kept when you rescan or switch language.
 
@@ -135,7 +139,7 @@ On first start the language follows your system language. You can change it at t
 - `conf.toml` and Steam's `localconfig.vdf` are backed up (`*.mako-assistant.bak`) before every change.
 - After writing `conf.toml`, the tool checks it with `mako-cli validate`. If MAKO rejects it, the original file is restored automatically.
 - `localconfig.vdf` is never edited directly while Steam is running.
-- When you click "Install Mako FG", the tool first checks that MAKO Renderer is installed (`~/.local/bin/mako-launch` exists) and that MAKO UI has created its settings. If either is missing, nothing is changed, and you are told to install MAKO first.
+- When you click "Install Mako FG", the tool first checks that MAKO Renderer is installed (`~/.local/bin/mako-launch` or `/usr/bin/mako-launch` exists) and that MAKO UI has created its settings. If either is missing, nothing is changed, and you are told to install MAKO first.
 - Settings from the per-game panel are checked against the ranges MAKO accepts before anything is written, are written only to that game's own profile, and are checked with `mako-cli validate` like every other change.
 
 ## Installing MAKO Assistant

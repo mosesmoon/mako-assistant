@@ -169,7 +169,8 @@ class ServiceTest(unittest.TestCase):
         self.service.install(292030)
         entry = self.service.entries()[0]
         self.assertTrue(entry.has_mako)
-        self.assertEqual(entry.launch_options, f"FOO=1 {M}")
+        # The launcher the service detected is what goes into the launch options.
+        self.assertEqual(entry.launch_options, f"FOO=1 {self.launcher} %command%")
         self.assertEqual(entry.profile_processes, ["witcher3.exe"])
         meta = json.loads((self.mako / "profile-metadata.json").read_text())["profiles"]
         self.assertEqual(meta[entry.profile_name]["steam_app_id"], "292030")

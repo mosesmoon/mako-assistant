@@ -585,6 +585,7 @@ class MainWindow(QMainWindow):
         if not getattr(panel, "_wired", False):
             panel.apply_requested.connect(self.apply_settings)
             panel.pending_changed.connect(lambda i, p: self._pending.__setitem__(i, p))
+            panel.power_set_requested.connect(self._load_power_set)
             panel._wired = True
         if app_id in self._settings:
             panel.set_settings(self._settings[app_id], self._pending.get(app_id))
@@ -608,15 +609,41 @@ class MainWindow(QMainWindow):
         task.signals.failed.connect(failed)
         self.pool.start(task)
 
+    def _load_power_set(self, app_id: int, power_set: str) -> None:
+        """Show another AC/battery set of the game's settings (MAKO Renderer 4.5+)."""
+        card = self._cards.get(app_id)
+        if card is None or card.panel is None:
+            return
+        card.panel.set_loading()
+        task = _Task(self.service.game_settings, app_id, power_set)
+
+        def done(settings):
+            self._settings[app_id] = settings
+            current = self._cards.get(app_id)
+            if current is not None and current.panel is not None:
+                current.panel.set_settings(settings, {})
+
+        def failed(error):
+            self.write_log(tr("log_error", error=error))
+            current = self._cards.get(app_id)
+            if current is not None and current.panel is not None:
+                current.panel.set_settings(self._settings.get(app_id))
+
+        task.signals.done.connect(done)
+        task.signals.failed.connect(failed)
+        self.pool.start(task)
+
     def apply_settings(self, app_id: int, changes: dict) -> None:
         if not changes:
             return
         entry = next((e for e in self.entries if e.app_id == app_id), None)
         name = entry.display_name if entry else str(app_id)
+        shown = self._settings.get(app_id)
+        power_set = getattr(shown, "power_set", "base") if shown is not None else "base"
 
         def work():
-            message = self.service.apply_game_settings(app_id, changes)
-            return message, self.service.game_settings(app_id)
+            message = self.service.apply_game_settings(app_id, changes, power_set)
+            return message, self.service.game_settings(app_id, power_set)
 
         def done(result):
             message, settings = result

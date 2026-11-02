@@ -1431,3 +1431,9 @@ from .i18n_settings import EXTRA as _EXTRA  # noqa: E402
 
 for _code, _table in _EXTRA.items():
     STRINGS[_code].update(_table)
+
+# MAKO Renderer 4.5/4.6 settings (GPU Headroom, refresh matching, HDR quality, power sets).
+from .i18n_mako46 import EXTRA as _EXTRA46  # noqa: E402
+
+for _code, _table in _EXTRA46.items():
+    STRINGS[_code].update(_table)

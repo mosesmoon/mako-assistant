@@ -11,6 +11,7 @@ profiles the assistant creates:
 
 from __future__ import annotations
 
+import copy
 import json
 import math
 import os
@@ -303,7 +304,9 @@ class MakoConfig:
             while self._profile(name) is not None:
                 name, suffix = f"{base}-{suffix}", suffix + 1
             profile = {"name": name}
-            profile.update({k: v for k, v in source.items() if k not in ("name", "active_in")})
+            # Deep copy: the default may hold AC/battery sub-tables (MAKO 4.5+).
+            profile.update(copy.deepcopy(
+                {k: v for k, v in source.items() if k not in ("name", "active_in")}))
             self.profiles().append(profile)
         profile = self._profile(name)
         assert profile is not None
@@ -369,11 +372,14 @@ class MakoConfig:
         default = self._profile(DEFAULT_PROFILE_NAME) or {}
         return existing.name, dict(profile), dict(default)
 
-    def update_game_settings(self, app_id: int, changes: dict[str, Any]) -> tuple[str, list[str]]:
+    def update_game_settings(self, app_id: int, changes: dict[str, Any],
+                             power_set: str = "base") -> tuple[str, list[str]]:
         """Write validated per-game settings into the game's own profile (call save() after).
 
         Only keys in `mako_settings.WRITABLE` are accepted; anything else in the
-        profile is kept as it is. Returns (profile name, keys whose value changed).
+        profile is kept as it is. With separate AC/battery settings (MAKO 4.5+),
+        `power_set` "handheld" or "docked" writes into that sub-table instead.
+        Returns (profile name, keys whose value changed).
         """
         from . import mako_settings
 
@@ -387,9 +393,16 @@ class MakoConfig:
             clean[key] = mako_settings.coerce(key, value)
         profile = self._profile(existing.name)
         assert profile is not None
-        changed = [k for k, v in clean.items() if profile.get(k) != v or k not in profile]
+        target = profile
+        if power_set != "base":
+            if power_set not in mako_settings.POWER_SETS or not mako_settings.power_sets(profile):
+                raise ValueError(f"{power_set}: this profile has no separate power settings")
+            target = profile[power_set]
+        current = mako_settings.effective_values(profile, None, power_set)
+        changed = [k for k, v in clean.items()
+                   if k not in target or target.get(k) != v or current.get(k) != v]
         for key in changed:
-            profile[key] = clean[key]
+            target[key] = clean[key]
         return existing.name, changed
 
     def remove_game(self, app_id: int) -> Optional[str]:

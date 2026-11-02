@@ -115,6 +115,39 @@ class SettingsPanelTest(unittest.TestCase):
                                   and card.panel.message.text() != self.ui.tr("set_loading")))
         self.assertEqual(card.panel.message.text(), self.ui.tr("set_no_profile"))
 
+    def test_power_sets_switch_and_apply_to_the_chosen_set(self):
+        from unittest import mock
+        from mako_assistant import mako_settings
+        import test_mako46
+        (self.mako / "conf.toml").write_text(test_mako46.POWER_CONF)
+        self.service.uninstall(292030, remove_config=True)
+        self.service.install(292030)
+        self.window.entries = self.service.entries()
+        self.window._settings.clear()
+        self.window.populate()
+        card = self.window._cards[292030]
+        with mock.patch.object(mako_settings, "active_power_source", return_value="docked"):
+            card.chevron.click()
+            panel = card.panel
+            self.assertTrue(self.wait(lambda: panel.base is not None))
+        self.assertTrue(panel.power_box.isVisibleTo(panel))
+        self.assertEqual((panel.power_set, panel.base["target_fps"]), ("docked", 144))
+
+        panel._on_change("target_fps", 100)
+        self.assertFalse(panel.power_selector.isEnabled())     # unsaved changes lock the set
+        panel.revert()
+        panel.power_selector.changed.emit("handheld")
+        self.assertTrue(self.wait(lambda: panel.base is not None and panel.power_set == "handheld"))
+        self.assertEqual(panel.base["target_fps"], 60)
+        panel._on_change("gpu_headroom_percent", 15)
+        panel.apply_btn.click()
+        self.assertTrue(self.wait(lambda: not panel.pending and not self.window.busy))
+        conf = tomllib.loads((self.mako / "conf.toml").read_text())
+        game = next(p for p in conf["profile"] if p["name"] == panel.profile)
+        self.assertEqual(game["handheld"]["gpu_headroom_percent"], 15)
+        self.assertNotIn("gpu_headroom_percent", {k for k in game if k != "handheld"} - {"docked"})
+        self.assertEqual(panel.power_set, "handheld")
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -9,6 +9,9 @@ from __future__ import annotations
 
 import re
 
+# Where MAKO's own installer puts the launcher. Packages (e.g. the Arch
+# package of MAKO Renderer 4.5+) install it elsewhere, such as /usr/bin; the
+# service detects the real path and passes it to add_mako().
 MAKO_LAUNCH = "~/.local/bin/mako-launch"
 MAKO_LAUNCH_COMMAND = f"{MAKO_LAUNCH} %command%"
 
@@ -22,16 +25,18 @@ def has_mako(options: str) -> bool:
     return bool(_ANY_WRAPPER.search(options or ""))
 
 
-def add_mako(options: str) -> str:
+def add_mako(options: str, launcher: str = MAKO_LAUNCH) -> str:
+    """Put `launcher` in front of %command%, keeping everything else."""
+    command = f"{launcher} %command%"
     options = (options or "").strip()
     if has_mako(options):
         return options
     if not options:
-        return MAKO_LAUNCH_COMMAND
+        return command
     if "%command%" in options:
-        return options.replace("%command%", MAKO_LAUNCH_COMMAND, 1)
+        return options.replace("%command%", command, 1)
     # Plain arguments (e.g. "-dx11") are appended to the game by Steam.
-    return f"{MAKO_LAUNCH_COMMAND} {options}"
+    return f"{command} {options}"
 
 
 def remove_mako(options: str) -> str:
