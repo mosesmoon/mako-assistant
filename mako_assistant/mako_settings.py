@@ -1,7 +1,7 @@
 """Per-game MAKO Renderer settings: what each profile field accepts.
 
 Ranges and choices were checked against ``mako-cli validate`` (MAKO Renderer
-standalone 4.0 and 4.6); labels follow MAKO UI. This module has no Qt dependency so
+standalone 4.0, 4.6 and 5.0); labels follow MAKO UI. This module has no Qt dependency so
 the service layer and the tests can use it.
 
 Every field maps to one key of a ``[[profile]]`` table in ``conf.toml``,
@@ -41,17 +41,36 @@ DEFAULTS: dict[str, Any] = {
     "performance_mode": False,
     "ultra_performance": False,
     "gpu_headroom_percent": 0,
+    "frame_generation_model": "mako-fg",   # 5.0: mako-fg | lossless-scaling
+    "mako_fg_mode": "balanced",            # 5.0: MAKO FG only
     "base_fps_cap": 0,
     "gamescope_vrr_mode": "follow-steam",
     "frame_generation_refresh_threshold": 0,
     "scaling_enabled": False,
-    "scaling_method": "ls1",
+    "scaling_method": "mako",          # MAKO Renderer 5.0 default (ls1 before)
     "scaling_factor": 1.5,
     "scaling_sharpness": 0.8,
     "scaling_supersampling": False,
     "swapchain_image_count_compatibility": False,
     "hdr_quality": "performance",
+    "mailbox_presentation_compatibility": False,
 }
+
+# MAKO UI 5.0 shows one model picker: MAKO FG, LSFG Quality, LSFG Performance.
+# It is stored as frame_generation_model plus performance_mode (the lighter
+# LSFG model); "fg_model" is that picker's virtual key.
+FG_MODEL_KEY = "fg_model"
+FG_MODELS = ("mako-fg", "lsfg-quality", "lsfg-performance")
+
+
+def fg_model(values: Values) -> str:
+    if values.get("frame_generation_model", "mako-fg") == "lossless-scaling":
+        return "lsfg-performance" if values.get("performance_mode") else "lsfg-quality"
+    return "mako-fg"
+
+
+def _mako_fg(values: Values) -> bool:
+    return fg_model(values) == "mako-fg"
 
 # Power-setting sets of a profile: the profile itself, then MAKO's sub-tables.
 POWER_SETS = ("base", "handheld", "docked")
@@ -92,6 +111,9 @@ SECTIONS: tuple[Section, ...] = (
     Section("set_sec_fg", icon="spark", fields=(
         Field("frame_generation_provisioned", "toggle", "set_provisioned", "set_provisioned_desc",
               restart=True),
+        Field(FG_MODEL_KEY, "segment", "set_fg_model", "set_fg_model_desc", restart=True,
+              options=(("mako-fg", "=MAKO FG"), ("lsfg-quality", "=LSFG Quality"),
+                       ("lsfg-performance", "=LSFG Performance"))),
         Field("adaptive", "segment", "set_mode", "set_mode_desc",
               options=((False, "set_mode_fixed"), (True, "set_mode_adaptive")), enabled=_fg_on),
         Field("multiplier", "ratio", "set_multiplier", "set_multiplier_desc",
@@ -102,8 +124,11 @@ SECTIONS: tuple[Section, ...] = (
               visible=lambda v: bool(v.get("adaptive"))),
         Field("flow_scale", "slider", "set_flow", "set_flow_desc",
               minimum=0.25, maximum=1.0, step=0.05, unit="percent", enabled=_fg_on),
-        Field("performance_mode", "toggle", "set_lighter", "set_lighter_desc",
-              enabled=lambda v: _fg_on(v) and not v.get("ultra_performance")),
+        Field("mako_fg_mode", "segment", "set_fg_mode", "set_fg_mode_desc",
+              options=(("quality", "set_fgm_quality"), ("balanced", "set_fgm_balanced"),
+                       ("performance", "set_fgm_performance"),
+                       ("extra-performance", "set_fgm_extra")),
+              visible=_mako_fg, enabled=_fg_on),
         Field("ultra_performance", "toggle", "set_ultra", "set_ultra_desc", restart=True,
               enabled=_fg_on),
         Field("gpu_headroom_percent", "segment", "set_headroom", "set_headroom_desc",
@@ -153,6 +178,8 @@ SECTIONS: tuple[Section, ...] = (
               enabled=lambda v: bool(v.get("scaling_enabled"))),
     )),
     Section("set_sec_compat", icon="shield", fields=(
+        Field("mailbox_presentation_compatibility", "toggle", "set_mailbox", "set_mailbox_desc",
+              restart=True),
         Field("hdr_quality", "segment", "set_hdr_quality", "set_hdr_quality_desc",
               options=(("quality", "set_hdr_q_quality"), ("balanced", "set_hdr_q_balanced"),
                        ("performance", "set_hdr_q_performance"))),
@@ -163,7 +190,9 @@ SECTIONS: tuple[Section, ...] = (
 
 FIELDS: dict[str, Field] = {f.key: f for s in SECTIONS for f in s.fields}
 # Keys this module may write: every field, plus the live pause behind "0x".
-WRITABLE = frozenset(FIELDS) | {"frame_generation_enabled"}
+# The model picker is virtual: it writes frame_generation_model and performance_mode.
+WRITABLE = (frozenset(FIELDS) - {FG_MODEL_KEY}) | {
+    "frame_generation_enabled", "frame_generation_model", "performance_mode"}
 
 
 def power_sets(profile: Values) -> bool:
@@ -224,6 +253,11 @@ def active_power_source(root: Path = Path("/sys/class/power_supply")) -> str:
     return "handheld" if battery and supply and not incomplete else "base"
 
 
+def shown_value(values: Values, key: str) -> Any:
+    """What a control shows for `key` (the model picker is derived from two keys)."""
+    return fg_model(values) if key == FG_MODEL_KEY else values.get(key)
+
+
 def ratio_value(values: Values, key: str) -> int:
     """What a ratio field shows: 0 while generation is paused, else the multiplier."""
     return 0 if not values.get("frame_generation_enabled", True) else int(values.get(key, 2))
@@ -231,9 +265,13 @@ def ratio_value(values: Values, key: str) -> int:
 
 def coerce(key: str, value: Any) -> Any:
     """Validate one value against MAKO's rules; return it in the type conf.toml expects."""
-    if key == "frame_generation_enabled":
+    if key in ("frame_generation_enabled", "performance_mode"):
         if not isinstance(value, bool):
             raise ValueError(f"{key}: expected true or false")
+        return value
+    if key == "frame_generation_model":
+        if value not in ("mako-fg", "lossless-scaling"):
+            raise ValueError(f"{key}: expected mako-fg or lossless-scaling")
         return value
     spec = FIELDS.get(key)
     if spec is None:
@@ -265,6 +303,13 @@ def coerce(key: str, value: Any) -> Any:
 
 def changes_for(key: str, value: Any) -> Values:
     """The conf.toml writes one control change needs (ratio 0 = live pause)."""
+    if key == FG_MODEL_KEY:
+        if value not in FG_MODELS:
+            raise ValueError(f"{key}: expected one of {', '.join(FG_MODELS)}")
+        if value == "mako-fg":
+            return {"frame_generation_model": "mako-fg"}
+        return {"frame_generation_model": "lossless-scaling",
+                "performance_mode": value == "lsfg-performance"}
     spec = FIELDS[key]
     if spec.kind == "ratio":
         if value == 0:

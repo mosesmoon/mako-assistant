@@ -2,7 +2,7 @@
 
 [English](en.md) · **台灣正體中文** · [简体中文](zh_CN.md) · [日本語](ja.md) · [Deutsch](de.md) · [Français](fr.md) · [Español](es.md) · [Italiano](it.md) · [ไทย](th.md) · [Tiếng Việt](vi.md) · [Bahasa Melayu](ms.md) · [हिन्दी](hi.md)
 
-**MAKO 助手**是一套 Linux 桌面圖形工具，讓你不用手動編輯任何設定檔，就能替 Steam 遊戲一鍵開啟或關閉 **MAKO Renderer 補幀（Mako FG）**。
+**MAKO 助手**是一套 Linux 桌面圖形工具，讓你不用手動編輯任何設定檔，就能替 Steam 遊戲一鍵開啟或關閉 **MAKO Renderer 補幀**。
 
 ## 這套工具是給誰用的
 
@@ -26,7 +26,7 @@ MAKO 助手把這些步驟整合成一個按鈕，並在遊戲執行時告訴你
 2. **開啟一次 MAKO UI**，建立預設設定。這會產生 `~/.config/mako-render/conf.toml` 和預設 profile `mako`。MAKO 助手幫遊戲建立的 profile，都以這個預設 profile 為範本。
 3. **安裝 Steam**。支援原生版（`~/.local/share/Steam`、`~/.steam`）、Flatpak 版與 Snap 版。
 
-請確認以上都完成、MAKO 本身也能正常運作，再用 MAKO 助手幫遊戲安裝 Mako FG。
+請確認以上都完成、MAKO 本身也能正常運作，再用 MAKO 助手幫遊戲啟用 MAKO。
 
 選用：**Decky Loader**。裝了之後，Steam 執行中也能即時套用啟動選項，不必關閉 Steam（詳見下方〈啟動選項的寫入方式〉）。
 
@@ -39,9 +39,9 @@ MAKO 助手把這些步驟整合成一個按鈕，並在遊戲執行時告訴你
 - 遊戲名稱依介面語言顯示 Steam 官方的在地化名稱（例如「巫師3：狂獵」），並依該語言的習慣排序（正體中文依筆畫）。
 - 每款遊戲都顯示封面、目前的啟動選項、MAKO 設定與偵測到的遊戲執行檔路徑。
 
-### 2. 一鍵「安裝 Mako FG」
+### 2. 一鍵「啟用 MAKO」
 
-按一下「安裝 Mako FG」，工具會：
+按一下「啟用 MAKO」，工具會：
 
 - **注入啟動選項**：在 Steam 啟動選項加入 `~/.local/bin/mako-launch %command%`，並**保留原有的設定**。例如 `FOO=1 %command% -dx11` 會變成 `FOO=1 ~/.local/bin/mako-launch %command% -dx11`。
 - **偵測真正的遊戲執行檔**：從 Steam 的遊戲資訊判斷，能處理啟動器（自動改找安裝目錄中的實際遊戲程式）與 Unreal 引擎的 `*-Shipping.exe`，並排除常見的輔助程式。
@@ -89,23 +89,23 @@ Steam 只在啟動時讀取啟動選項，並在關閉時覆寫設定檔。為�
 - **其他圖層**：vkBasalt、Zink、ALSA 音訊。
 - **待套用的變更**：例如「需重新啟動遊戲」「需重建交換鏈」，以及 MAKO 回報的錯誤。
 
-如果遊戲裝了 Mako FG，卻沒有真正載入 MAKO，也會顯示出來，方便你找出問題。
+如果遊戲裝了 MAKO，卻沒有真正載入 MAKO，也會顯示出來，方便你找出問題。
 
 ### 9. 每款遊戲的 MAKO 設定
 
 每款遊戲卡片的最右側都有一個箭頭按鈕，按下去就會在下方展開這款遊戲的 **MAKO 設定**，選項和 MAKO UI 相同：
 
-- **補幀**：固定倍數或自適應模式、倍數 / 最高倍數（0x 會暫停補幀，不會移除任何設定）、Flow 比例與效能模式。「GPU 餘裕」會在補幀時保留 5–20% 的 GPU 運算能力（MAKO Renderer 4.6，AMD GPU）。
+- **補幀**：固定倍數或自適應模式、倍數 / 最高倍數（0x 會暫停補幀，不會移除任何設定）、Flow 比例與效能模式。「GPU 餘裕」會在補幀時保留 5–20% 的 GPU 運算能力（MAKO Renderer 4.6，AMD GPU）。使用 MAKO Renderer 5.0 時，還可以選擇補幀模型（MAKO FG、LSFG Quality 或 LSFG Performance；LSFG 模型需要 Lossless Scaling），以及 MAKO FG 專用的「MAKO FG 模式」。
 - **自適應**：目標 FPS、穩定上限、真實畫格優先順序與節奏選項（只有自適應模式才會顯示）。「配合螢幕更新率」會以螢幕的更新率作為目標（MAKO Renderer 4.5 以上）。
 - **節奏與限制**：基礎 FPS 上限、Gamescope VRR 與更新率保護。
 - **空間縮放**：縮放方式、縮放倍率、銳利度與超取樣。
-- **HDR 與相容性**：HDR 畫質（畫質、平衡或效能；只在 MAKO UI 開啟 HDR 時使用）與交換鏈影像數量相容性。
+- **HDR 與相容性**：HDR 畫質（畫質、平衡或效能；只在 MAKO UI 開啟 HDR 時使用）與交換鏈影像數量相容性。「Mailbox 呈現」（MAKO Renderer 5.0）可修正開啟補幀後卡住的遊戲，需重啟。
 
 **電池與接電源兩套設定（MAKO Renderer 4.5 以上）**：遊戲若有電池與接電源兩套設定，可以在「正在編輯的設定」選擇「基本設定」、「掌機（電池）」或「底座（接電源）」。面板會顯示那一套的數值，按「套用」只會寫入那一套，切換鈕下方也會說明 MAKO 目前使用的是哪一套。切換前請先套用或放棄目前的變更。新建立的遊戲設定檔會從預設設定檔複製這兩套設定。
 
 每個選項下方都有簡短說明。調整後的變更會先暫存，面板會顯示還有幾項尚未套用；按「套用」寫入這款遊戲自己的 MAKO profile，按「放棄變更」則回到原本的值。大部分設定在遊戲執行中就會生效，標示「需重啟」的項目要在下次啟動遊戲時才會生效。尚未套用的變更在重新掃描或切換語言後都會保留。
 
-只有擁有自己 MAKO profile 的遊戲（按過「安裝 Mako FG」或「匯入設定」）才能調整。預設 profile `mako` 不會在這裡被修改。
+只有擁有自己 MAKO profile 的遊戲（按過「啟用 MAKO」或「匯入設定」）才能調整。預設 profile `mako` 不會在這裡被修改。
 
 ### 10. 遊戲啟動浮水印
 
@@ -113,13 +113,13 @@ MAKO 助手開著時啟動遊戲，一偵測到 MAKO 已經在遊戲中運作，
 
 - 每次啟動只顯示一次，不會搶走鍵盤滑鼠焦點，滑鼠也能直接點穿。
 - 可以疊在全螢幕的 Proton 遊戲上。
-- 如果裝了 Mako FG 的遊戲啟動 90 秒後仍未載入 MAKO，會改顯示警告。
+- 如果裝了 MAKO 的遊戲啟動 90 秒後仍未載入 MAKO，會改顯示警告。
 - 可以用工具列的「遊戲啟動浮水印」開關關閉。
 
 ### 11. 搜尋與篩選
 
 - 可以用遊戲名稱（任何語言的名稱都可以）或 App ID 搜尋。
-- 篩選：全部遊戲、已安裝 Mako FG、未安裝 Mako FG、僅保留 MAKO 設定、執行中。
+- 篩選：全部遊戲、已啟用 MAKO、未啟用 MAKO、僅保留 MAKO 設定、執行中。
 
 ### 12. 12 種介面語言
 
@@ -139,7 +139,7 @@ MAKO 助手開著時啟動遊戲，一偵測到 MAKO 已經在遊戲中運作，
 - 修改 `conf.toml` 和 Steam 的 `localconfig.vdf` 前，都會先備份（`*.mako-assistant.bak`）。
 - 寫入 `conf.toml` 後，會用 `mako-cli validate` 驗證。MAKO 不接受的話，會自動還原。
 - Steam 執行中時，絕不直接修改 `localconfig.vdf`。
-- 按「安裝 Mako FG」時，會先確認 MAKO Renderer 已安裝（`~/.local/bin/mako-launch` 或 `/usr/bin/mako-launch` 存在）且 MAKO UI 已建立設定。任一項不符合，就不會修改任何設定，並提示你先安裝 MAKO。
+- 按「啟用 MAKO」時，會先確認 MAKO Renderer 已安裝（`~/.local/bin/mako-launch` 或 `/usr/bin/mako-launch` 存在）且 MAKO UI 已建立設定。任一項不符合，就不會修改任何設定，並提示你先安裝 MAKO。
 - 每款遊戲設定面板的數值，寫入前會先檢查是否在 MAKO 接受的範圍內，只會寫入這款遊戲自己的 profile，並和其他修改一樣以 `mako-cli validate` 驗證。
 
 ## 安裝 MAKO 助手

@@ -2,7 +2,7 @@
 
 **English** · [台灣正體中文](zh_TW.md) · [简体中文](zh_CN.md) · [日本語](ja.md) · [Deutsch](de.md) · [Français](fr.md) · [Español](es.md) · [Italiano](it.md) · [ไทย](th.md) · [Tiếng Việt](vi.md) · [Bahasa Melayu](ms.md) · [हिन्दी](hi.md)
 
-**MAKO Assistant** is a graphical Linux desktop tool that turns **MAKO Renderer frame generation (Mako FG)** on or off for your Steam games with one click, without editing any config files by hand.
+**MAKO Assistant** is a graphical Linux desktop tool that turns **MAKO Renderer frame generation** on or off for your Steam games with one click, without editing any config files by hand.
 
 ## Who it is for
 
@@ -26,7 +26,7 @@ Do these first:
 2. **Open MAKO UI once** to create the default settings. This creates `~/.config/mako-render/conf.toml` and the default profile `mako`. Every game profile MAKO Assistant creates is a copy of this default profile.
 3. **Install Steam.** The native package (`~/.local/share/Steam`, `~/.steam`), Flatpak and Snap versions are supported.
 
-Make sure all of the above is done and MAKO itself works before you install Mako FG for a game with MAKO Assistant.
+Make sure all of the above is done and MAKO itself works before you install MAKO for a game with MAKO Assistant.
 
 Optional: **Decky Loader.** With it installed, launch options can be applied live while Steam is running, without closing Steam (see "How launch options are written" below).
 
@@ -39,9 +39,9 @@ Optional: **Decky Loader.** With it installed, launch options can be applied liv
 - Game names are shown in Steam's official localized name for your interface language (for example "巫師3：狂獵" in Traditional Chinese) and sorted the way that language expects.
 - Each game shows its cover art, its current launch options, its MAKO profile and the detected game executable paths.
 
-### 2. One-click "Install Mako FG"
+### 2. One-click "Enable MAKO"
 
-When you click "Install Mako FG", the tool:
+When you click "Enable MAKO", the tool:
 
 - **Adds the launch option** `~/.local/bin/mako-launch %command%` to the game's Steam launch options and **keeps what was already there**. For example, `FOO=1 %command% -dx11` becomes `FOO=1 ~/.local/bin/mako-launch %command% -dx11`.
 - **Detects the real game executable** from Steam's app information. It handles launchers (it looks for the actual game program in the install folder instead) and Unreal Engine `*-Shipping.exe` files, and skips common helper programs.
@@ -89,23 +89,23 @@ While a game is running, its card shows the live MAKO features, refreshed every 
 - **Other layers**: vkBasalt, Zink, ALSA audio.
 - **Pending changes**, such as "game restart required" or "swapchain rebuild required", and any errors MAKO reports.
 
-If a game has Mako FG installed but MAKO is not actually loaded, that is shown too, so you can track down the problem.
+If a game has MAKO enabled but MAKO is not actually loaded, that is shown too, so you can track down the problem.
 
 ### 9. MAKO settings for each game
 
 Every game has an arrow button at the right end of its card. Click it to open that game's **MAKO settings** right below it, with the same options as MAKO UI:
 
-- **Frame Generation**: fixed multiplier or Adaptive mode, Multiplier / Maximum multiplier (0x pauses frame generation without removing anything), Flow scale and performance modes. GPU Headroom keeps 5–20% of the GPU free during Frame Generation (MAKO Renderer 4.6, AMD GPUs).
+- **Frame Generation**: fixed multiplier or Adaptive mode, Multiplier / Maximum multiplier (0x pauses frame generation without removing anything), Flow scale and performance modes. GPU Headroom keeps 5–20% of the GPU free during Frame Generation (MAKO Renderer 4.6, AMD GPUs). With MAKO Renderer 5.0 you also choose the Frame Generation model (MAKO FG, LSFG Quality or LSFG Performance; the LSFG models need Lossless Scaling) and, for MAKO FG, the MAKO FG mode.
 - **Adaptive**: target FPS, steady cap, real-frame priority and cadence options (shown only in Adaptive mode). Match display refresh rate uses the display's refresh rate as the target (MAKO Renderer 4.5+).
 - **Pacing & limits**: base FPS cap, Gamescope VRR and the refresh-rate guard.
 - **Spatial Scaling**: scaling method, scale factor, sharpness and supersampling.
-- **HDR & compatibility**: HDR quality (Quality, Balanced or Performance; only used when HDR is on in MAKO UI) and swapchain image count compatibility.
+- **HDR & compatibility**: HDR quality (Quality, Balanced or Performance; only used when HDR is on in MAKO UI) and swapchain image count compatibility. Mailbox presentation (MAKO Renderer 5.0) is a restart-only fix for games that hang with Frame Generation.
 
 **Battery and AC settings (MAKO Renderer 4.5+)**: if the game has separate settings for battery and AC power, "Editing settings for" lets you choose Base settings, Handheld (Battery) or Docked (AC Power). The panel shows the values of that set, "Apply" writes only to it, and the note below the switch tells you which set MAKO uses right now. Apply or discard your changes before switching sets. New game profiles copy both sets from the default profile.
 
 Each option has a short explanation underneath. Your changes are collected first, and the panel shows how many are not applied yet. Click "Apply" to write them into the game's own MAKO profile, or "Discard" to go back. Most settings take effect while the game is running; items marked "Restart" take effect the next time the game starts. Changes you have not applied yet are kept when you rescan or switch language.
 
-The settings are available for games that have their own MAKO profile (after "Install Mako FG" or "Import settings"). The default profile `mako` is never changed here.
+The settings are available for games that have their own MAKO profile (after "Enable MAKO" or "Import settings"). The default profile `mako` is never changed here.
 
 ### 10. Overlay when a game starts
 
@@ -113,13 +113,13 @@ If MAKO Assistant is open when you start a game, as soon as it detects MAKO work
 
 - It appears once per launch, never takes keyboard or mouse focus, and mouse clicks pass through it.
 - It can appear on top of fullscreen Proton games.
-- If a game with Mako FG installed still has not loaded MAKO 90 seconds after starting, a warning is shown instead.
+- If a game with MAKO enabled still has not loaded MAKO 90 seconds after starting, a warning is shown instead.
 - You can turn it off with the "Overlay on game start" switch in the toolbar.
 
 ### 11. Search and filters
 
 - Search by game name (in any language) or by App ID.
-- Filters: all games, Mako FG installed, Mako FG not installed, MAKO settings only, running.
+- Filters: all games, MAKO enabled, MAKO not enabled, MAKO settings only, running.
 
 ### 12. Twelve interface languages
 
@@ -139,7 +139,7 @@ On first start the language follows your system language. You can change it at t
 - `conf.toml` and Steam's `localconfig.vdf` are backed up (`*.mako-assistant.bak`) before every change.
 - After writing `conf.toml`, the tool checks it with `mako-cli validate`. If MAKO rejects it, the original file is restored automatically.
 - `localconfig.vdf` is never edited directly while Steam is running.
-- When you click "Install Mako FG", the tool first checks that MAKO Renderer is installed (`~/.local/bin/mako-launch` or `/usr/bin/mako-launch` exists) and that MAKO UI has created its settings. If either is missing, nothing is changed, and you are told to install MAKO first.
+- When you click "Enable MAKO", the tool first checks that MAKO Renderer is installed (`~/.local/bin/mako-launch` or `/usr/bin/mako-launch` exists) and that MAKO UI has created its settings. If either is missing, nothing is changed, and you are told to install MAKO first.
 - Settings from the per-game panel are checked against the ranges MAKO accepts before anything is written, are written only to that game's own profile, and are checked with `mako-cli validate` like every other change.
 
 ## Installing MAKO Assistant

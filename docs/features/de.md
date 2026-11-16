@@ -2,7 +2,7 @@
 
 [English](en.md) · [台灣正體中文](zh_TW.md) · [简体中文](zh_CN.md) · [日本語](ja.md) · **Deutsch** · [Français](fr.md) · [Español](es.md) · [Italiano](it.md) · [ไทย](th.md) · [Tiếng Việt](vi.md) · [Bahasa Melayu](ms.md) · [हिन्दी](hi.md)
 
-Der **MAKO-Assistent** ist ein grafisches Linux-Desktop-Werkzeug, mit dem du die **Frame-Generierung von MAKO Renderer (Mako FG)** für deine Steam-Spiele per Klick ein- oder ausschaltest, ohne Konfigurationsdateien von Hand zu bearbeiten.
+Der **MAKO-Assistent** ist ein grafisches Linux-Desktop-Werkzeug, mit dem du die **Frame-Generierung von MAKO Renderer** für deine Steam-Spiele per Klick ein- oder ausschaltest, ohne Konfigurationsdateien von Hand zu bearbeiten.
 
 ## Für wen ist das gedacht?
 
@@ -26,7 +26,7 @@ Erledige zuerst Folgendes:
 2. **MAKO UI einmal öffnen**, damit die Standardeinstellungen angelegt werden. Dabei entstehen `~/.config/mako-render/conf.toml` und das Standardprofil `mako`. Jedes Spielprofil, das der MAKO-Assistent anlegt, ist eine Kopie dieses Standardprofils.
 3. **Steam installieren.** Unterstützt werden das native Paket (`~/.local/share/Steam`, `~/.steam`) sowie die Flatpak- und Snap-Version.
 
-Erst wenn all das erledigt ist und MAKO selbst funktioniert, solltest du mit dem MAKO-Assistenten Mako FG für ein Spiel installieren.
+Erst wenn all das erledigt ist und MAKO selbst funktioniert, solltest du mit dem MAKO-Assistenten MAKO für ein Spiel installieren.
 
 Optional: **Decky Loader.** Damit lassen sich Startoptionen live übernehmen, während Steam läuft, ohne Steam zu schließen (siehe „So werden Startoptionen geschrieben“ unten).
 
@@ -39,9 +39,9 @@ Optional: **Decky Loader.** Damit lassen sich Startoptionen live übernehmen, w�
 - Spielnamen werden im offiziellen lokalisierten Steam-Namen deiner Oberflächensprache angezeigt und so sortiert, wie es in dieser Sprache üblich ist.
 - Zu jedem Spiel siehst du das Titelbild, die aktuellen Startoptionen, das MAKO-Profil und die erkannten Pfade der ausführbaren Datei.
 
-### 2. „Mako FG installieren“ mit einem Klick
+### 2. „MAKO aktivieren“ mit einem Klick
 
-Ein Klick auf „Mako FG installieren“ bewirkt Folgendes:
+Ein Klick auf „MAKO aktivieren“ bewirkt Folgendes:
 
 - **Startoption eintragen**: `~/.local/bin/mako-launch %command%` wird in die Steam-Startoptionen eingefügt, **vorhandene Einträge bleiben erhalten**. Aus `FOO=1 %command% -dx11` wird zum Beispiel `FOO=1 ~/.local/bin/mako-launch %command% -dx11`.
 - **Die echte ausführbare Datei erkennen**: anhand der App-Informationen von Steam. Launcher werden berücksichtigt (stattdessen wird das eigentliche Spielprogramm im Installationsordner gesucht), ebenso `*-Shipping.exe` von Unreal Engine; gängige Hilfsprogramme werden übersprungen.
@@ -89,23 +89,23 @@ Solange ein Spiel läuft, zeigt seine Karte die aktiven MAKO-Funktionen, aktuali
 - **Weitere Layer**: vkBasalt, Zink, ALSA-Audio.
 - **Ausstehende Änderungen** wie „Spielneustart erforderlich“ oder „Swapchain-Neuaufbau erforderlich“ sowie Fehler, die MAKO meldet.
 
-Ist bei einem Spiel Mako FG installiert, MAKO aber nicht wirklich geladen, wird auch das angezeigt, damit du dem Problem nachgehen kannst.
+Ist bei einem Spiel MAKO aktiv, MAKO aber nicht wirklich geladen, wird auch das angezeigt, damit du dem Problem nachgehen kannst.
 
 ### 9. MAKO-Einstellungen für jedes Spiel
 
 Jede Spielkarte hat ganz rechts eine Pfeil-Schaltfläche. Ein Klick darauf öffnet direkt darunter die **MAKO-Einstellungen** dieses Spiels, mit denselben Optionen wie in MAKO UI:
 
-- **Frame-Generierung**: fester Multiplikator oder Modus „Adaptiv“, Multiplikator / Maximaler Multiplikator (0x pausiert die Frame-Generierung, ohne etwas zu entfernen), Flow-Skalierung und Leistungsmodi. Die GPU-Reserve hält während der Frame-Generierung 5–20 % der GPU frei (MAKO Renderer 4.6, AMD-GPUs).
+- **Frame-Generierung**: fester Multiplikator oder Modus „Adaptiv“, Multiplikator / Maximaler Multiplikator (0x pausiert die Frame-Generierung, ohne etwas zu entfernen), Flow-Skalierung und Leistungsmodi. Die GPU-Reserve hält während der Frame-Generierung 5–20 % der GPU frei (MAKO Renderer 4.6, AMD-GPUs). Mit MAKO Renderer 5.0 wählst du außerdem das Frame-Generierungsmodell (MAKO FG, LSFG Quality oder LSFG Performance; die LSFG-Modelle brauchen Lossless Scaling) und für MAKO FG den MAKO-FG-Modus.
 - **Adaptiv**: Ziel-FPS, stabile Obergrenze, Priorität echter Frames und Taktungsoptionen (nur im Modus „Adaptiv“ sichtbar). „Bildwiederholrate des Displays übernehmen“ nutzt die Bildwiederholrate als Ziel (MAKO Renderer 4.5+).
 - **Taktung & Grenzen**: Basis-FPS-Limit, Gamescope-VRR und Bildwiederholraten-Schutz.
 - **Räumliche Skalierung**: Skalierungsverfahren, Skalierungsfaktor, Schärfe und Supersampling.
-- **HDR & Kompatibilität**: HDR-Qualität (Qualität, Ausgewogen oder Leistung; nur bei in MAKO UI eingeschaltetem HDR) und Kompatibilität der Swapchain-Bildanzahl.
+- **HDR & Kompatibilität**: HDR-Qualität (Qualität, Ausgewogen oder Leistung; nur bei in MAKO UI eingeschaltetem HDR) und Kompatibilität der Swapchain-Bildanzahl. Die Mailbox-Präsentation (MAKO Renderer 5.0) hilft Spielen, die mit Frame-Generierung hängen; sie wirkt nach einem Neustart.
 
 **Einstellungen für Akku und Netzbetrieb (MAKO Renderer 4.5+)**: Hat das Spiel getrennte Einstellungen für Akku und Netzbetrieb, wählst du unter „Einstellungen bearbeiten für“ zwischen „Grundeinstellungen“, „Mobil (Akku)“ und „Angedockt (Netzbetrieb)“. Das Panel zeigt die Werte dieses Satzes, „Übernehmen“ schreibt nur in ihn, und der Hinweis unter dem Schalter nennt den Satz, den MAKO gerade nutzt. Übernimm oder verwirf deine Änderungen, bevor du wechselst. Neue Spielprofile übernehmen beide Sätze aus dem Standardprofil.
 
 Unter jeder Option steht eine kurze Erklärung. Deine Änderungen werden zuerst gesammelt, und das Panel zeigt, wie viele noch nicht übernommen sind. „Übernehmen“ schreibt sie in das eigene MAKO-Profil des Spiels, „Verwerfen“ stellt die bisherigen Werte wieder her. Die meisten Einstellungen wirken schon während das Spiel läuft; mit „Neustart“ markierte Optionen wirken beim nächsten Spielstart. Noch nicht übernommene Änderungen bleiben beim erneuten Einlesen und beim Sprachwechsel erhalten.
 
-Die Einstellungen gibt es für Spiele mit eigenem MAKO-Profil (nach „Mako FG installieren“ oder „Einstellungen übernehmen“). Das Standardprofil `mako` wird hier nie geändert.
+Die Einstellungen gibt es für Spiele mit eigenem MAKO-Profil (nach „MAKO aktivieren“ oder „Einstellungen übernehmen“). Das Standardprofil `mako` wird hier nie geändert.
 
 ### 10. Overlay beim Spielstart
 
@@ -113,13 +113,13 @@ Ist der MAKO-Assistent geöffnet, während du ein Spiel startest, zeigt er die a
 
 - Es erscheint einmal pro Start, übernimmt nie den Tastatur- oder Mausfokus, und Mausklicks gehen hindurch.
 - Es kann über Proton-Spielen im Vollbild erscheinen.
-- Hat ein Spiel mit installiertem Mako FG MAKO 90 Sekunden nach dem Start noch nicht geladen, erscheint stattdessen eine Warnung.
+- Hat ein Spiel mit installiertem MAKO MAKO 90 Sekunden nach dem Start noch nicht geladen, erscheint stattdessen eine Warnung.
 - Du kannst es mit dem Schalter „Overlay beim Spielstart“ in der Werkzeugleiste ausschalten.
 
 ### 11. Suche und Filter
 
 - Suche nach Spielname (in jeder Sprache) oder nach App-ID.
-- Filter: alle Spiele, Mako FG installiert, Mako FG nicht installiert, nur MAKO-Einstellungen, läuft.
+- Filter: alle Spiele, MAKO aktiv, MAKO nicht aktiv, nur MAKO-Einstellungen, läuft.
 
 ### 12. Zwölf Oberflächensprachen
 
@@ -139,7 +139,7 @@ Beim ersten Start richtet sich die Sprache nach deiner Systemsprache. Du kannst 
 - `conf.toml` und Steams `localconfig.vdf` werden vor jeder Änderung gesichert (`*.mako-assistant.bak`).
 - Nach dem Schreiben prüft das Werkzeug `conf.toml` mit `mako-cli validate`. Lehnt MAKO die Datei ab, wird das Original automatisch wiederhergestellt.
 - `localconfig.vdf` wird nie direkt bearbeitet, solange Steam läuft.
-- Wenn du auf „Mako FG installieren“ klickst, prüft das Werkzeug zuerst, ob MAKO Renderer installiert ist (`~/.local/bin/mako-launch` oder `/usr/bin/mako-launch` vorhanden) und MAKO UI seine Einstellungen angelegt hat. Fehlt eines davon, wird nichts geändert, und du wirst aufgefordert, zuerst MAKO zu installieren.
+- Wenn du auf „MAKO aktivieren“ klickst, prüft das Werkzeug zuerst, ob MAKO Renderer installiert ist (`~/.local/bin/mako-launch` oder `/usr/bin/mako-launch` vorhanden) und MAKO UI seine Einstellungen angelegt hat. Fehlt eines davon, wird nichts geändert, und du wirst aufgefordert, zuerst MAKO zu installieren.
 - Werte aus dem Einstellungspanel werden vor dem Schreiben gegen die Bereiche geprüft, die MAKO akzeptiert, nur in das eigene Profil des Spiels geschrieben und wie jede andere Änderung mit `mako-cli validate` geprüft.
 
 ## MAKO-Assistent installieren

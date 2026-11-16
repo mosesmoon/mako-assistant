@@ -241,10 +241,17 @@ def describe(game: RunningGame) -> tuple[str, list[Feature], list[str]]:
                         max=applied.get("adaptive_max_multiplier"))]
         else:
             parts = [f"×{applied.get('multiplier')}"]
+        model = applied.get("frame_generation_model")      # MAKO Renderer 5.0+
+        lsfg = model == "lossless-scaling"
+        if model == "mako-fg":
+            parts.insert(0, "MAKO FG")
+        elif lsfg:
+            parts.insert(0, "LSFG")
         flow = applied.get("effective_flow_scale", applied.get("flow_scale"))
         if isinstance(flow, (int, float)):
             parts.append(f"Flow {flow:.2f}")
-        if applied.get("effective_performance_mode"):
+        # The lighter model is an LSFG setting; before 5.0 there was only LSFG.
+        if applied.get("effective_performance_mode") and (lsfg or model is None):
             parts.append(tr("fg_perf"))
         if applied.get("ultra_performance"):
             parts.append(tr("fg_ultra"))

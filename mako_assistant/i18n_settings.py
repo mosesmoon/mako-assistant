@@ -7,7 +7,7 @@ wording (condensed); the same keys must exist in every language.
 EXTRA: dict[str, dict[str, str]] = {}
 
 EXTRA["en"] = {
-    "cfg_no_game_profile": "This game has no MAKO profile yet. Install Mako FG first.",
+    "cfg_no_game_profile": "This game has no MAKO profile yet. Install MAKO first.",
     "svc_settings_unchanged": "No changes to MAKO profile “{profile}”.",
     "svc_settings_applied": "Saved {count} setting(s) to MAKO profile “{profile}”.",
     "svc_settings_restart": "Some changes take effect the next time the game starts.",
@@ -18,7 +18,7 @@ EXTRA["en"] = {
     "set_apply": "Apply",
     "set_revert": "Discard",
     "set_loading": "Loading MAKO settings…",
-    "set_no_profile": "This game has no MAKO profile yet. Install Mako FG and its own profile appears here.",
+    "set_no_profile": "This game has no MAKO profile yet. Install MAKO and its own profile appears here.",
     "set_pending": "{count} unsaved change(s)",
     "set_saved": "All changes saved",
     "set_restart": "Restart",
@@ -96,7 +96,7 @@ EXTRA["en"] = {
 }
 
 EXTRA["zh_TW"] = {
-    "cfg_no_game_profile": "這款遊戲還沒有 MAKO 設定，請先安裝 Mako FG。",
+    "cfg_no_game_profile": "這款遊戲還沒有 MAKO 設定，請先安裝 MAKO。",
     "svc_settings_unchanged": "MAKO 設定「{profile}」沒有變更。",
     "svc_settings_applied": "已將 {count} 項設定寫入 MAKO 設定「{profile}」。",
     "svc_settings_restart": "部分變更要在下次啟動遊戲時才會生效。",
@@ -107,7 +107,7 @@ EXTRA["zh_TW"] = {
     "set_apply": "套用",
     "set_revert": "放棄變更",
     "set_loading": "正在讀取 MAKO 設定…",
-    "set_no_profile": "這款遊戲還沒有 MAKO 設定。安裝 Mako FG 後，這裡會出現它專屬的設定。",
+    "set_no_profile": "這款遊戲還沒有 MAKO 設定。安裝 MAKO 後，這裡會出現它專屬的設定。",
     "set_pending": "{count} 項變更尚未套用",
     "set_saved": "所有變更都已儲存",
     "set_restart": "需重啟",
@@ -185,7 +185,7 @@ EXTRA["zh_TW"] = {
 }
 
 EXTRA["zh_CN"] = {
-    "cfg_no_game_profile": "这款游戏还没有 MAKO 配置，请先安装 Mako FG。",
+    "cfg_no_game_profile": "这款游戏还没有 MAKO 配置，请先安装 MAKO。",
     "svc_settings_unchanged": "MAKO 配置“{profile}”没有变更。",
     "svc_settings_applied": "已将 {count} 项设置写入 MAKO 配置“{profile}”。",
     "svc_settings_restart": "部分变更要在下次启动游戏时才会生效。",
@@ -196,7 +196,7 @@ EXTRA["zh_CN"] = {
     "set_apply": "应用",
     "set_revert": "放弃更改",
     "set_loading": "正在读取 MAKO 设置…",
-    "set_no_profile": "这款游戏还没有 MAKO 配置。安装 Mako FG 后，这里会出现它专属的设置。",
+    "set_no_profile": "这款游戏还没有 MAKO 配置。安装 MAKO 后，这里会出现它专属的设置。",
     "set_pending": "{count} 项更改尚未应用",
     "set_saved": "所有更改都已保存",
     "set_restart": "需重启",
@@ -274,7 +274,7 @@ EXTRA["zh_CN"] = {
 }
 
 EXTRA["ja"] = {
-    "cfg_no_game_profile": "このゲームにはまだ MAKO プロファイルがありません。先に Mako FG を導入してください。",
+    "cfg_no_game_profile": "このゲームにはまだ MAKO プロファイルがありません。先に MAKO を導入してください。",
     "svc_settings_unchanged": "MAKO プロファイル「{profile}」に変更はありません。",
     "svc_settings_applied": "MAKO プロファイル「{profile}」に {count} 件の設定を保存しました。",
     "svc_settings_restart": "一部の変更は次にゲームを起動したときに反映されます。",
@@ -285,7 +285,7 @@ EXTRA["ja"] = {
     "set_apply": "適用",
     "set_revert": "変更を破棄",
     "set_loading": "MAKO 設定を読み込んでいます…",
-    "set_no_profile": "このゲームにはまだ MAKO プロファイルがありません。Mako FG を導入すると、専用の設定がここに表示されます。",
+    "set_no_profile": "このゲームにはまだ MAKO プロファイルがありません。MAKO を導入すると、専用の設定がここに表示されます。",
     "set_pending": "未適用の変更 {count} 件",
     "set_saved": "すべての変更を保存しました",
     "set_restart": "要再起動",
@@ -363,7 +363,7 @@ EXTRA["ja"] = {
 }
 
 EXTRA["de"] = {
-    "cfg_no_game_profile": "Dieses Spiel hat noch kein MAKO-Profil. Installiere zuerst Mako FG.",
+    "cfg_no_game_profile": "Dieses Spiel hat noch kein MAKO-Profil. Installiere zuerst MAKO.",
     "svc_settings_unchanged": "Keine Änderungen am MAKO-Profil „{profile}“.",
     "svc_settings_applied": "{count} Einstellung(en) im MAKO-Profil „{profile}“ gespeichert.",
     "svc_settings_restart": "Einige Änderungen gelten erst beim nächsten Spielstart.",
@@ -374,7 +374,7 @@ EXTRA["de"] = {
     "set_apply": "Übernehmen",
     "set_revert": "Verwerfen",
     "set_loading": "MAKO-Einstellungen werden geladen…",
-    "set_no_profile": "Dieses Spiel hat noch kein MAKO-Profil. Installiere Mako FG, dann erscheint sein eigenes Profil hier.",
+    "set_no_profile": "Dieses Spiel hat noch kein MAKO-Profil. Installiere MAKO, dann erscheint sein eigenes Profil hier.",
     "set_pending": "{count} ungespeicherte Änderung(en)",
     "set_saved": "Alle Änderungen gespeichert",
     "set_restart": "Neustart",
@@ -452,7 +452,7 @@ EXTRA["de"] = {
 }
 
 EXTRA["fr"] = {
-    "cfg_no_game_profile": "Ce jeu n’a pas encore de profil MAKO. Installez d’abord Mako FG.",
+    "cfg_no_game_profile": "Ce jeu n’a pas encore de profil MAKO. Installez d’abord MAKO.",
     "svc_settings_unchanged": "Aucun changement dans le profil MAKO « {profile} ».",
     "svc_settings_applied": "{count} réglage(s) enregistré(s) dans le profil MAKO « {profile} ».",
     "svc_settings_restart": "Certains changements prendront effet au prochain lancement du jeu.",
@@ -463,7 +463,7 @@ EXTRA["fr"] = {
     "set_apply": "Appliquer",
     "set_revert": "Annuler",
     "set_loading": "Chargement des réglages MAKO…",
-    "set_no_profile": "Ce jeu n’a pas encore de profil MAKO. Installez Mako FG et son profil apparaîtra ici.",
+    "set_no_profile": "Ce jeu n’a pas encore de profil MAKO. Installez MAKO et son profil apparaîtra ici.",
     "set_pending": "{count} changement(s) non enregistré(s)",
     "set_saved": "Tous les changements sont enregistrés",
     "set_restart": "Relancer",
@@ -541,7 +541,7 @@ EXTRA["fr"] = {
 }
 
 EXTRA["es"] = {
-    "cfg_no_game_profile": "Este juego aún no tiene perfil de MAKO. Instala Mako FG primero.",
+    "cfg_no_game_profile": "Este juego aún no tiene perfil de MAKO. Instala MAKO primero.",
     "svc_settings_unchanged": "No hay cambios en el perfil de MAKO «{profile}».",
     "svc_settings_applied": "Se guardaron {count} ajuste(s) en el perfil de MAKO «{profile}».",
     "svc_settings_restart": "Algunos cambios se aplicarán la próxima vez que inicies el juego.",
@@ -552,7 +552,7 @@ EXTRA["es"] = {
     "set_apply": "Aplicar",
     "set_revert": "Descartar",
     "set_loading": "Cargando los ajustes de MAKO…",
-    "set_no_profile": "Este juego aún no tiene perfil de MAKO. Instala Mako FG y su perfil aparecerá aquí.",
+    "set_no_profile": "Este juego aún no tiene perfil de MAKO. Instala MAKO y su perfil aparecerá aquí.",
     "set_pending": "{count} cambio(s) sin guardar",
     "set_saved": "Todos los cambios están guardados",
     "set_restart": "Reiniciar",
@@ -630,7 +630,7 @@ EXTRA["es"] = {
 }
 
 EXTRA["it"] = {
-    "cfg_no_game_profile": "Questo gioco non ha ancora un profilo MAKO. Installa prima Mako FG.",
+    "cfg_no_game_profile": "Questo gioco non ha ancora un profilo MAKO. Installa prima MAKO.",
     "svc_settings_unchanged": "Nessuna modifica al profilo MAKO «{profile}».",
     "svc_settings_applied": "Salvate {count} impostazioni nel profilo MAKO «{profile}».",
     "svc_settings_restart": "Alcune modifiche avranno effetto al prossimo avvio del gioco.",
@@ -641,7 +641,7 @@ EXTRA["it"] = {
     "set_apply": "Applica",
     "set_revert": "Annulla",
     "set_loading": "Caricamento delle impostazioni MAKO…",
-    "set_no_profile": "Questo gioco non ha ancora un profilo MAKO. Installa Mako FG e il suo profilo comparirà qui.",
+    "set_no_profile": "Questo gioco non ha ancora un profilo MAKO. Installa MAKO e il suo profilo comparirà qui.",
     "set_pending": "{count} modifiche non salvate",
     "set_saved": "Tutte le modifiche sono salvate",
     "set_restart": "Riavvio",
@@ -719,7 +719,7 @@ EXTRA["it"] = {
 }
 
 EXTRA["th"] = {
-    "cfg_no_game_profile": "เกมนี้ยังไม่มีโปรไฟล์ MAKO โปรดติดตั้ง Mako FG ก่อน",
+    "cfg_no_game_profile": "เกมนี้ยังไม่มีโปรไฟล์ MAKO โปรดติดตั้ง MAKO ก่อน",
     "svc_settings_unchanged": "ไม่มีการเปลี่ยนแปลงในโปรไฟล์ MAKO \"{profile}\"",
     "svc_settings_applied": "บันทึกการตั้งค่า {count} รายการลงในโปรไฟล์ MAKO \"{profile}\" แล้ว",
     "svc_settings_restart": "การเปลี่ยนแปลงบางอย่างจะมีผลเมื่อเปิดเกมครั้งถัดไป",
@@ -730,7 +730,7 @@ EXTRA["th"] = {
     "set_apply": "นำไปใช้",
     "set_revert": "ยกเลิกการเปลี่ยนแปลง",
     "set_loading": "กำลังโหลดการตั้งค่า MAKO…",
-    "set_no_profile": "เกมนี้ยังไม่มีโปรไฟล์ MAKO ติดตั้ง Mako FG แล้วโปรไฟล์ของเกมจะแสดงที่นี่",
+    "set_no_profile": "เกมนี้ยังไม่มีโปรไฟล์ MAKO ติดตั้ง MAKO แล้วโปรไฟล์ของเกมจะแสดงที่นี่",
     "set_pending": "มีการเปลี่ยนแปลงที่ยังไม่บันทึก {count} รายการ",
     "set_saved": "บันทึกการเปลี่ยนแปลงทั้งหมดแล้ว",
     "set_restart": "ต้องรีสตาร์ต",
@@ -808,7 +808,7 @@ EXTRA["th"] = {
 }
 
 EXTRA["vi"] = {
-    "cfg_no_game_profile": "Game này chưa có hồ sơ MAKO. Hãy cài Mako FG trước.",
+    "cfg_no_game_profile": "Game này chưa có hồ sơ MAKO. Hãy cài MAKO trước.",
     "svc_settings_unchanged": "Hồ sơ MAKO “{profile}” không có thay đổi.",
     "svc_settings_applied": "Đã lưu {count} thiết lập vào hồ sơ MAKO “{profile}”.",
     "svc_settings_restart": "Một số thay đổi sẽ có hiệu lực ở lần mở game tiếp theo.",
@@ -819,7 +819,7 @@ EXTRA["vi"] = {
     "set_apply": "Áp dụng",
     "set_revert": "Bỏ thay đổi",
     "set_loading": "Đang tải thiết lập MAKO…",
-    "set_no_profile": "Game này chưa có hồ sơ MAKO. Cài Mako FG, hồ sơ riêng của game sẽ hiện ở đây.",
+    "set_no_profile": "Game này chưa có hồ sơ MAKO. Cài MAKO, hồ sơ riêng của game sẽ hiện ở đây.",
     "set_pending": "{count} thay đổi chưa lưu",
     "set_saved": "Đã lưu mọi thay đổi",
     "set_restart": "Cần khởi động lại",
@@ -897,7 +897,7 @@ EXTRA["vi"] = {
 }
 
 EXTRA["ms"] = {
-    "cfg_no_game_profile": "Permainan ini belum ada profil MAKO. Pasang Mako FG dahulu.",
+    "cfg_no_game_profile": "Permainan ini belum ada profil MAKO. Pasang MAKO dahulu.",
     "svc_settings_unchanged": "Tiada perubahan pada profil MAKO “{profile}”.",
     "svc_settings_applied": "{count} tetapan disimpan ke profil MAKO “{profile}”.",
     "svc_settings_restart": "Sesetengah perubahan berkuat kuasa apabila permainan dimulakan semula.",
@@ -908,7 +908,7 @@ EXTRA["ms"] = {
     "set_apply": "Guna",
     "set_revert": "Buang perubahan",
     "set_loading": "Memuatkan tetapan MAKO…",
-    "set_no_profile": "Permainan ini belum ada profil MAKO. Pasang Mako FG dan profilnya akan dipaparkan di sini.",
+    "set_no_profile": "Permainan ini belum ada profil MAKO. Pasang MAKO dan profilnya akan dipaparkan di sini.",
     "set_pending": "{count} perubahan belum disimpan",
     "set_saved": "Semua perubahan disimpan",
     "set_restart": "Mula semula",
@@ -986,7 +986,7 @@ EXTRA["ms"] = {
 }
 
 EXTRA["hi"] = {
-    "cfg_no_game_profile": "इस गेम की अभी कोई MAKO प्रोफ़ाइल नहीं है। पहले Mako FG इंस्टॉल करें।",
+    "cfg_no_game_profile": "इस गेम की अभी कोई MAKO प्रोफ़ाइल नहीं है। पहले MAKO इंस्टॉल करें।",
     "svc_settings_unchanged": "MAKO प्रोफ़ाइल “{profile}” में कोई बदलाव नहीं है।",
     "svc_settings_applied": "MAKO प्रोफ़ाइल “{profile}” में {count} सेटिंग सहेजी गईं।",
     "svc_settings_restart": "कुछ बदलाव गेम को अगली बार शुरू करने पर लागू होंगे।",
@@ -997,7 +997,7 @@ EXTRA["hi"] = {
     "set_apply": "लागू करें",
     "set_revert": "बदलाव रद्द करें",
     "set_loading": "MAKO सेटिंग्स लोड हो रही हैं…",
-    "set_no_profile": "इस गेम की अभी कोई MAKO प्रोफ़ाइल नहीं है। Mako FG इंस्टॉल करें, फिर इसकी अपनी प्रोफ़ाइल यहाँ दिखेगी।",
+    "set_no_profile": "इस गेम की अभी कोई MAKO प्रोफ़ाइल नहीं है। MAKO इंस्टॉल करें, फिर इसकी अपनी प्रोफ़ाइल यहाँ दिखेगी।",
     "set_pending": "{count} बदलाव सहेजे नहीं गए",
     "set_saved": "सभी बदलाव सहेजे गए",
     "set_restart": "रीस्टार्ट",

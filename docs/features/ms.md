@@ -2,7 +2,7 @@
 
 [English](en.md) · [台灣正體中文](zh_TW.md) · [简体中文](zh_CN.md) · [日本語](ja.md) · [Deutsch](de.md) · [Français](fr.md) · [Español](es.md) · [Italiano](it.md) · [ไทย](th.md) · [Tiếng Việt](vi.md) · **Bahasa Melayu** · [हिन्दी](hi.md)
 
-**Pembantu MAKO** ialah alat grafik untuk desktop Linux yang menghidupkan atau mematikan **penjanaan bingkai MAKO Renderer (Mako FG)** bagi permainan Steam anda dengan satu klik, tanpa perlu menyunting sebarang fail konfigurasi sendiri.
+**Pembantu MAKO** ialah alat grafik untuk desktop Linux yang menghidupkan atau mematikan **penjanaan bingkai MAKO Renderer** bagi permainan Steam anda dengan satu klik, tanpa perlu menyunting sebarang fail konfigurasi sendiri.
 
 ## Untuk siapa
 
@@ -26,7 +26,7 @@ Lakukan perkara berikut dahulu:
 2. **Buka MAKO UI sekali** untuk mencipta tetapan lalai. Langkah ini mencipta `~/.config/mako-render/conf.toml` dan profil lalai `mako`. Setiap profil permainan yang dicipta oleh Pembantu MAKO ialah salinan profil lalai ini.
 3. **Pasang Steam.** Pakej asli (`~/.local/share/Steam`, `~/.steam`) serta versi Flatpak dan Snap disokong.
 
-Pastikan semua langkah di atas telah selesai dan MAKO sendiri berfungsi sebelum anda menggunakan Pembantu MAKO untuk memasang Mako FG bagi sesuatu permainan.
+Pastikan semua langkah di atas telah selesai dan MAKO sendiri berfungsi sebelum anda menggunakan Pembantu MAKO untuk memasang MAKO bagi sesuatu permainan.
 
 Pilihan: **Decky Loader**. Dengan Decky Loader, pilihan pelancaran boleh digunakan serta-merta semasa Steam sedang berjalan, tanpa menutup Steam (lihat "Cara pilihan pelancaran ditulis" di bawah).
 
@@ -39,9 +39,9 @@ Pilihan: **Decky Loader**. Dengan Decky Loader, pilihan pelancaran boleh digunak
 - Nama permainan dipaparkan mengikut nama tempatan rasmi Steam dalam bahasa antara muka dan disusun mengikut kebiasaan bahasa itu. (Steam tiada nama permainan dalam Bahasa Melayu, jadi nama asal dipaparkan.)
 - Setiap permainan memaparkan gambar muka depan, pilihan pelancaran semasa, profil MAKO dan laluan fail boleh laku yang dikesan.
 
-### 2. "Pasang Mako FG" dengan satu klik
+### 2. "Dayakan MAKO" dengan satu klik
 
-Apabila anda klik "Pasang Mako FG", alat ini akan:
+Apabila anda klik "Dayakan MAKO", alat ini akan:
 
 - **Menambah pilihan pelancaran** `~/.local/bin/mako-launch %command%` pada pilihan pelancaran Steam permainan dan **mengekalkan tetapan sedia ada**. Contohnya, `FOO=1 %command% -dx11` menjadi `FOO=1 ~/.local/bin/mako-launch %command% -dx11`.
 - **Mengesan fail boleh laku permainan yang sebenar** berdasarkan maklumat aplikasi Steam. Ia mengendalikan pelancar (dengan mencari program permainan sebenar dalam folder pemasangan) dan `*-Shipping.exe` Unreal Engine, serta melangkau program pembantu yang biasa.
@@ -89,23 +89,23 @@ Semasa permainan berjalan, kad permainan itu memaparkan ciri MAKO yang aktif, di
 - **Lapisan lain**: vkBasalt, Zink, audio ALSA.
 - **Perubahan yang belum digunakan**, seperti "perlu mulakan semula permainan" atau "perlu bina semula swapchain", serta ralat yang dilaporkan oleh MAKO.
 
-Jika sesuatu permainan sudah dipasang Mako FG tetapi MAKO tidak benar-benar dimuatkan, perkara itu juga dipaparkan supaya anda mudah mengesan punca masalah.
+Jika sesuatu permainan sudah dipasang MAKO tetapi MAKO tidak benar-benar dimuatkan, perkara itu juga dipaparkan supaya anda mudah mengesan punca masalah.
 
 ### 9. Tetapan MAKO untuk setiap permainan
 
 Setiap kad permainan mempunyai butang anak panah di hujung kanan. Klik untuk membuka **Tetapan MAKO** permainan itu betul-betul di bawahnya, dengan pilihan yang sama seperti MAKO UI:
 
-- **Penjanaan bingkai**: pendarab tetap atau mod Adaptif, Pendarab / Pendarab maksimum (0x menjeda penjanaan bingkai tanpa membuang apa-apa), skala Flow dan mod prestasi. Ruang GPU mengekalkan 5–20% GPU kosong semasa penjanaan bingkai (MAKO Renderer 4.6, GPU AMD).
+- **Penjanaan bingkai**: pendarab tetap atau mod Adaptif, Pendarab / Pendarab maksimum (0x menjeda penjanaan bingkai tanpa membuang apa-apa), skala Flow dan mod prestasi. Ruang GPU mengekalkan 5–20% GPU kosong semasa penjanaan bingkai (MAKO Renderer 4.6, GPU AMD). Dengan MAKO Renderer 5.0, anda juga memilih model penjanaan bingkai (MAKO FG, LSFG Quality atau LSFG Performance; model LSFG memerlukan Lossless Scaling) dan, untuk MAKO FG, mod MAKO FG.
 - **Adaptif**: FPS sasaran, had stabil, keutamaan bingkai sebenar dan pilihan rentak (hanya dipaparkan dalam mod Adaptif). "Ikut kadar segar semula paparan" menggunakan kadar segar semula paparan sebagai sasaran (MAKO Renderer 4.5+).
 - **Rentak dan had**: had FPS asas, VRR Gamescope dan perlindungan kadar segar semula.
 - **Penskalaan ruang**: kaedah penskalaan, faktor skala, ketajaman dan supersampling.
-- **HDR & keserasian**: kualiti HDR (Kualiti, Seimbang atau Prestasi; hanya digunakan apabila HDR dihidupkan dalam MAKO UI) dan keserasian bilangan imej swapchain.
+- **HDR & keserasian**: kualiti HDR (Kualiti, Seimbang atau Prestasi; hanya digunakan apabila HDR dihidupkan dalam MAKO UI) dan keserasian bilangan imej swapchain. Persembahan Mailbox (MAKO Renderer 5.0) membaiki permainan yang tergantung dengan penjanaan bingkai; perlu dimulakan semula.
 
 **Tetapan bateri dan kuasa AU (MAKO Renderer 4.5+)**: jika permainan mempunyai tetapan berasingan untuk bateri dan kuasa AU, pilih dalam "Menyunting tetapan untuk" antara "Tetapan asas", "Pegang tangan (bateri)" dan "Dok (kuasa AU)". Panel menunjukkan nilai set itu, "Guna" hanya menulis ke set itu, dan nota di bawah pemilih memberitahu set yang digunakan MAKO sekarang. Guna atau buang perubahan sebelum bertukar set. Profil permainan baharu menyalin kedua-dua set daripada profil lalai.
 
 Setiap pilihan ada penerangan ringkas di bawahnya. Perubahan anda disimpan dahulu, dan panel menunjukkan berapa banyak yang belum digunakan. Klik "Guna" untuk menulisnya ke profil MAKO permainan itu sendiri, atau "Buang perubahan" untuk kembali kepada nilai asal. Kebanyakan tetapan berkuat kuasa semasa permainan berjalan; item bertanda "Mula semula" berkuat kuasa apabila permainan dimulakan seterusnya. Perubahan yang belum digunakan kekal walaupun anda mengimbas semula atau menukar bahasa.
 
-Tetapan ini tersedia untuk permainan yang mempunyai profil MAKO sendiri (selepas "Pasang Mako FG" atau "Import tetapan"). Profil lalai `mako` tidak pernah diubah di sini.
+Tetapan ini tersedia untuk permainan yang mempunyai profil MAKO sendiri (selepas "Dayakan MAKO" atau "Import tetapan"). Profil lalai `mako` tidak pernah diubah di sini.
 
 ### 10. Tindanan semasa permainan bermula
 
@@ -113,13 +113,13 @@ Jika Pembantu MAKO sedang dibuka semasa anda melancarkan permainan, sebaik sahaj
 
 - Ia muncul sekali bagi setiap pelancaran, tidak mengambil fokus papan kekunci atau tetikus, dan klik tetikus menembusinya.
 - Ia boleh muncul di atas permainan Proton skrin penuh.
-- Jika permainan yang dipasang Mako FG masih belum memuatkan MAKO 90 saat selepas dilancarkan, amaran akan dipaparkan sebagai ganti.
+- Jika permainan yang dipasang MAKO masih belum memuatkan MAKO 90 saat selepas dilancarkan, amaran akan dipaparkan sebagai ganti.
 - Anda boleh mematikannya dengan suis "Tindanan semasa permainan bermula" pada bar alat.
 
 ### 11. Carian dan penapis
 
 - Cari mengikut nama permainan (dalam apa-apa bahasa) atau App ID.
-- Penapis: semua permainan, Mako FG dipasang, Mako FG belum dipasang, tetapan MAKO sahaja, sedang berjalan.
+- Penapis: semua permainan, MAKO didayakan, MAKO belum didayakan, tetapan MAKO sahaja, sedang berjalan.
 
 ### 12. Dua belas bahasa antara muka
 
@@ -139,7 +139,7 @@ Kali pertama dibuka, bahasa mengikut bahasa sistem. Anda boleh menukarnya pada b
 - `conf.toml` dan `localconfig.vdf` Steam disandarkan (`*.mako-assistant.bak`) sebelum setiap perubahan.
 - Selepas menulis `conf.toml`, alat ini menyemaknya dengan `mako-cli validate`. Jika MAKO menolaknya, fail asal dipulihkan secara automatik.
 - `localconfig.vdf` tidak pernah disunting secara terus semasa Steam sedang berjalan.
-- Apabila anda klik "Pasang Mako FG", alat ini terlebih dahulu menyemak bahawa MAKO Renderer sudah dipasang (fail `~/.local/bin/mako-launch` atau `/usr/bin/mako-launch` wujud) dan MAKO UI sudah mencipta tetapannya. Jika salah satu tiada, tiada apa-apa yang diubah dan anda diminta memasang MAKO dahulu.
+- Apabila anda klik "Dayakan MAKO", alat ini terlebih dahulu menyemak bahawa MAKO Renderer sudah dipasang (fail `~/.local/bin/mako-launch` atau `/usr/bin/mako-launch` wujud) dan MAKO UI sudah mencipta tetapannya. Jika salah satu tiada, tiada apa-apa yang diubah dan anda diminta memasang MAKO dahulu.
 - Nilai daripada panel tetapan disemak dengan julat yang diterima MAKO sebelum apa-apa ditulis, ditulis hanya ke profil permainan itu sendiri, dan disemak dengan `mako-cli validate` seperti perubahan lain.
 
 ## Memasang Pembantu MAKO

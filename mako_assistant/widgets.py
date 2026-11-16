@@ -348,7 +348,7 @@ class _FieldRow(QWidget):
             if spec.kind == "toggle":
                 control.setChecked(bool(values.get(spec.key)))
             elif spec.kind == "segment":
-                control.set_value(values.get(spec.key))
+                control.set_value(ms.shown_value(values, spec.key))
             elif spec.kind == "ratio":
                 current = ms.ratio_value(values, spec.key)
                 control.set_value(current)

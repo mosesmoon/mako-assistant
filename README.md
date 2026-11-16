@@ -6,7 +6,7 @@
 
 ## English
 
-A desktop tool (PyQt6) that installs or removes MAKO Renderer frame generation (Mako FG) for Steam games with one click. Built for regular Linux desktops and laptops; on a Steam Deck in Gaming Mode, use MAKO's Decky plugin instead.
+A desktop tool (PyQt6) that installs or removes MAKO Renderer frame generation for Steam games with one click. Built for regular Linux desktops and laptops; on a Steam Deck in Gaming Mode, use MAKO's Decky plugin instead.
 
 > ⚠ **MAKO Assistant does not include MAKO Renderer.** Install MAKO Renderer yourself and open MAKO UI once (this creates the default settings) before using it.
 
@@ -31,6 +31,7 @@ Multilingual release notes for each version are in [`docs/releases/`](docs/relea
 
 | Version | Date | Summary |
 |---|---|---|
+| [1.3.0](docs/releases/1.3.0.md) | 2026-11-17 | MAKO Renderer 5.0 support: per-game Frame Generation model (MAKO FG, LSFG Quality, LSFG Performance), MAKO FG mode and Mailbox presentation; the per-game switch is now called "Enable MAKO" |
 | [1.2.0](docs/releases/1.2.0.md) | 2026-11-02 | MAKO Renderer 4.6 settings (GPU Headroom, display refresh matching, HDR quality) and battery/AC setting sets; finds `mako-launch` automatically (e.g. `/usr/bin` from the Arch package); new single-file `.bin` installer and Flatpak package |
 | [1.1.0](docs/releases/1.1.0.md) | 2026-10-14 | Per-game MAKO settings panel (expand a game to adjust and apply its MAKO profile); redesigned interface with Auto / Dark / Light themes; layout adapts to narrow windows |
 | [1.0.1](docs/releases/1.0.1.md) | 2026-10-03 | Checks that MAKO is installed before installing; fixes the default profile and a game profile matching the same executable; restarts Steam even if applying fails; adds a feature guide in 12 languages |
@@ -39,19 +40,19 @@ Multilingual release notes for each version are in [`docs/releases/`](docs/relea
 ### Features
 
 - **Automatic scan**: on first start, scans all Steam libraries (`libraryfolders.vdf` + `appmanifest_*.acf`). Afterwards, click "Rescan Steam games".
-- **Install Mako FG**
+- **Enable MAKO**
   - Adds `mako-launch %command%` to the Steam launch options using the installed launcher: `~/.local/bin/mako-launch` (MAKO's installer) or, if that is missing, the one on your PATH such as `/usr/bin/mako-launch` (Arch package). Existing environment variables and arguments are kept (for example `FOO=1 %command%` → `FOO=1 ~/.local/bin/mako-launch %command%`).
   - Detects the game's real executable from `appinfo.vdf` (launcher → actual game exe, Unreal `*-Shipping.exe`), creates a game profile in `~/.config/mako-render/conf.toml` using MAKO's default profile (`mako`) as the template, and writes `profile-metadata.json` (`kind: game`, `steam_app_id`) so MAKO UI and Decky both recognise it.
   - If the default profile `mako` also matches this game's executable, it is removed from `mako` so the game uses only its own profile (rescanning fixes existing duplicates too). If another game's profile matches the same executable, you get a warning and nothing is changed automatically.
   - Checks first that MAKO Renderer is installed (`mako-launch` exists) and that MAKO UI has created its settings; if not, nothing is changed.
 - **Remove**: only takes `mako-launch` out of the launch options. The game's profile is deleted only if you tick "Also remove the game's MAKO Renderer settings".
-- **Automatic path updates**: on every rescan, games that had Mako FG installed through this tool get their executables detected again and `active_in` updated. Matched processes you added by hand in MAKO UI are kept.
+- **Automatic path updates**: on every rescan, games that had MAKO enabled through this tool get their executables detected again and `active_in` updated. Matched processes you added by hand in MAKO UI are kept.
 - **Launch games**: every row has a "▶ Launch" button (via `steam://rungameid/<AppID>`); while the game runs it shows "Running".
 - **Live MAKO features (actual state, not the config file)**: running Steam games are checked every 3 seconds.
   - Games are matched by the process environment variable `SteamAppId`; `/proc/<pid>/maps` confirms that `libmako-render.so` and vkBasalt are really loaded.
   - Reads `~/.config/mako-render/runtime-state/*.json` written by the MAKO layer (applied frame-generation multiplier / adaptive target, Flow, performance mode, scaling method and resolution, pending changes, errors). These files stay behind after a game exits, so only files whose PID is still alive and whose start time (`process_start_ticks`) matches are used.
-- **MAKO settings for each game**: click the arrow at the right end of a game to open its MAKO settings (Frame Generation, Adaptive, Pacing & limits, Spatial Scaling, HDR & compatibility — the same options as MAKO UI, including MAKO Renderer 4.6's GPU Headroom, display refresh matching and HDR quality, each with a short explanation). If the game has separate battery and AC settings (MAKO Renderer 4.5+), choose which set to edit; the one in use is shown. Changes are collected until you click "Apply", which writes them to that game's own profile in `conf.toml` (checked against MAKO's accepted ranges, then `mako-cli validate`). A multiplier of 0x pauses frame generation (`frame_generation_enabled = false`). Options marked "Restart" take effect the next time the game starts. The default profile `mako` is never changed here.
-- **Overlay on game start**: if MAKO Assistant is open when a game starts, as soon as MAKO has started rendering in the game, the active MAKO features appear in the bottom-right corner for about 10 seconds, then fade out (once per launch; games already running before the assistant opened are skipped). If a game with Mako FG installed still has not loaded MAKO after 90 seconds, a warning is shown. The overlay is a separate X11 (XWayland) window so it can sit on top of fullscreen games; it never takes focus and lets mouse clicks through. It can be turned off with the toolbar switch. It does not appear in Steam Deck Gaming Mode (gamescope).
+- **MAKO settings for each game**: click the arrow at the right end of a game to open its MAKO settings (Frame Generation, Adaptive, Pacing & limits, Spatial Scaling, HDR & compatibility — the same options as MAKO UI, including MAKO Renderer 5.0's Frame Generation model picker, MAKO FG mode and Mailbox presentation and 4.6's GPU Headroom, display refresh matching and HDR quality, each with a short explanation). If the game has separate battery and AC settings (MAKO Renderer 4.5+), choose which set to edit; the one in use is shown. Changes are collected until you click "Apply", which writes them to that game's own profile in `conf.toml` (checked against MAKO's accepted ranges, then `mako-cli validate`). A multiplier of 0x pauses frame generation (`frame_generation_enabled = false`). Options marked "Restart" take effect the next time the game starts. The default profile `mako` is never changed here.
+- **Overlay on game start**: if MAKO Assistant is open when a game starts, as soon as MAKO has started rendering in the game, the active MAKO features appear in the bottom-right corner for about 10 seconds, then fade out (once per launch; games already running before the assistant opened are skipped). If a game with MAKO enabled still has not loaded MAKO after 90 seconds, a warning is shown. The overlay is a separate X11 (XWayland) window so it can sit on top of fullscreen games; it never takes focus and lets mouse clicks through. It can be turned off with the toolbar switch. It does not appear in Steam Deck Gaming Mode (gamescope).
 - **Look and themes**: a dark, glassy design whose buttons and switches use a green → cyan → blue → indigo → violet gradient; switch between Auto (follows the system), Dark and Light in the toolbar. The layout adapts to narrow windows, and messages are collected in the collapsible "Activity" area at the bottom.
 - **Languages**: 台灣正體中文, 简体中文, English, 日本語, Deutsch, Français, Español, Italiano, ไทย, Tiếng Việt, Bahasa Melayu, हिन्दी. The system language is picked on first start; switch at the top right (applies immediately and is remembered). Qt's built-in texts (right-click menus and so on) are translated for the first 7 languages; Qt has no official Thai, Vietnamese, Malay or Hindi translations, so right-click menus are in English for those.
 
@@ -141,7 +142,7 @@ python3 -m unittest discover -s tests -v
 
 ## 台灣正體中文
 
-為 Steam 遊戲一鍵安裝 / 移除 MAKO Renderer 補幀（Mako FG）的桌面工具（PyQt6）。專為一般 Linux 桌面電腦與筆電設計；Steam Deck 遊戲模式下請改用 MAKO 的 Decky 外掛。
+為 Steam 遊戲一鍵安裝 / 移除 MAKO Renderer 補幀的桌面工具（PyQt6）。專為一般 Linux 桌面電腦與筆電設計；Steam Deck 遊戲模式下請改用 MAKO 的 Decky 外掛。
 
 > ⚠ **MAKO 助手不包含 MAKO Renderer。** 使用前請先自行安裝 MAKO Renderer，並開啟一次 MAKO UI（會建立預設設定）。
 
@@ -166,6 +167,7 @@ python3 -m unittest discover -s tests -v
 
 | 版本 | 日期 | 摘要 |
 |---|---|---|
+| [1.3.0](docs/releases/1.3.0.md) | 2026-11-17 | 支援 MAKO Renderer 5.0：每款遊戲可選補幀模型（MAKO FG、LSFG Quality、LSFG Performance）、MAKO FG 模式與 Mailbox 呈現；每款遊戲的開關改稱「啟用 MAKO」 |
 | [1.2.0](docs/releases/1.2.0.md) | 2026-11-02 | 支援 MAKO Renderer 4.6 設定（GPU 餘裕、配合螢幕更新率、HDR 畫質）與電池／接電源兩套設定；自動偵測 `mako-launch` 路徑（例如 Arch 套件的 `/usr/bin`）；新增單一檔案 `.bin` 安裝程式與 Flatpak 版 |
 | [1.1.0](docs/releases/1.1.0.md) | 2026-10-14 | 新增每款遊戲的 MAKO 設定面板（展開遊戲即可調整並套用到它的 MAKO profile）；介面全新設計，支援自動 / 深色 / 淺色主題；視窗較窄時版面會自動調整 |
 | [1.0.1](docs/releases/1.0.1.md) | 2026-10-03 | 安裝前先檢查 MAKO 是否已安裝；修正預設 profile 與遊戲 profile 重複比對；套用失敗時也會重開 Steam；新增 12 語系功能介紹 |
@@ -174,19 +176,19 @@ python3 -m unittest discover -s tests -v
 ### 功能
 
 - **自動掃描**：第一次開啟時自動掃描所有 Steam 遊戲庫（`libraryfolders.vdf` + `appmanifest_*.acf`），之後可按「重新掃描 Steam 遊戲清單」。
-- **安裝 Mako FG**
+- **啟用 MAKO**
   - 在 Steam 啟動選項注入 `mako-launch %command%`，使用實際安裝的啟動器：`~/.local/bin/mako-launch`（MAKO 安裝程式），沒有的話改用 PATH 中的（例如 Arch 套件的 `/usr/bin/mako-launch`），並保留原有的環境變數與參數（例如 `FOO=1 %command%` → `FOO=1 ~/.local/bin/mako-launch %command%`）。
   - 從 `appinfo.vdf` 偵測遊戲實際執行檔（含啟動器→真正的遊戲 exe、Unreal `*-Shipping.exe`），以 MAKO 預設 profile（`mako`）為範本，在 `~/.config/mako-render/conf.toml` 建立遊戲 profile，並寫入 `profile-metadata.json`（`kind: game`、`steam_app_id`），MAKO UI / Decky 都能辨識。
   - 若預設 profile `mako` 的比對程式也包含這個遊戲的執行檔，會從 `mako` 移除，讓遊戲只套用自己的 profile（重新掃描時也會修正既有的重複）。若其他遊戲的 profile 也比對到同一個執行檔，只會提示、不自動修改。
   - 會先確認 MAKO Renderer 已安裝（`mako-launch` 存在）且 MAKO UI 已建立設定；不符合就不做任何修改。
 - **移除**：只從啟動選項移除 `mako-launch`；勾選「一併移除 MAKO Renderer 遊戲設定」才會刪除該遊戲的 profile。
-- **自動更新遊戲路徑**：每次重新掃描時，對「透過本工具安裝過 Mako FG」的遊戲重新偵測執行檔，更新 `active_in`；使用者在 MAKO UI 手動加入的比對程式會保留。
+- **自動更新遊戲路徑**：每次重新掃描時，對「透過本工具安裝過 MAKO」的遊戲重新偵測執行檔，更新 `active_in`；使用者在 MAKO UI 手動加入的比對程式會保留。
 - **啟動遊戲**：遊戲列表每一列都有「▶ 啟動」按鈕（透過 `steam://rungameid/<AppID>`），遊戲執行中會顯示「執行中」。
 - **執行中的 MAKO 功能（實際狀態，非設定檔）**：每 3 秒偵測一次執行中的 Steam 遊戲：
   - 以程序環境變數 `SteamAppId` 對應遊戲；以 `/proc/<pid>/maps` 確認 `libmako-render.so`、vkBasalt 真的被載入。
   - 讀取 MAKO 圖層寫出的 `~/.config/mako-render/runtime-state/*.json`（套用中的補幀倍數 / 自適應目標、Flow、效能模式、縮放方式與解析度、待套用變更、錯誤）。這些檔案在遊戲結束後會殘留，所以只採用 PID 仍存活且啟動時間（`process_start_ticks`）相符的檔案。
-- **每款遊戲的 MAKO 設定**：按遊戲最右側的箭頭即可展開它的 MAKO 設定（補幀、自適應、節奏與限制、空間縮放、HDR 與相容性，和 MAKO UI 相同，包含 MAKO Renderer 4.6 的 GPU 餘裕、配合螢幕更新率與 HDR 畫質，每項都附簡短說明）。遊戲若有電池與接電源兩套設定（MAKO Renderer 4.5 以上），可以選擇要編輯哪一套，並顯示目前使用中的是哪一套。變更會先暫存，按「套用」才寫入這款遊戲在 `conf.toml` 中自己的 profile（先檢查是否在 MAKO 接受的範圍內，再以 `mako-cli validate` 驗證）。倍數設為 0x 會暫停補幀（`frame_generation_enabled = false`）。標示「需重啟」的項目在下次啟動遊戲時生效。預設 profile `mako` 不會在這裡被修改。
-- **遊戲啟動浮水印**：MAKO 助手開著時啟動遊戲，一偵測到 MAKO 已在遊戲中建立畫面，就在右下角顯示執行中的 MAKO 功能約 10 秒後淡出（每次啟動只顯示一次；開啟助手前就在跑的遊戲不顯示）。已裝 Mako FG 的遊戲若 90 秒後仍未載入 MAKO，會顯示警告。浮水印用獨立的 X11（XWayland）視窗，才能疊在全螢幕遊戲上，且不搶焦點、滑鼠可穿透；可在工具列的開關關閉。Steam Deck 遊戲模式（gamescope）下不會顯示。
+- **每款遊戲的 MAKO 設定**：按遊戲最右側的箭頭即可展開它的 MAKO 設定（補幀、自適應、節奏與限制、空間縮放、HDR 與相容性，和 MAKO UI 相同，包含 MAKO Renderer 5.0 的補幀模型選擇、MAKO FG 模式與 Mailbox 呈現，以及 4.6 的 GPU 餘裕、配合螢幕更新率與 HDR 畫質，每項都附簡短說明）。遊戲若有電池與接電源兩套設定（MAKO Renderer 4.5 以上），可以選擇要編輯哪一套，並顯示目前使用中的是哪一套。變更會先暫存，按「套用」才寫入這款遊戲在 `conf.toml` 中自己的 profile（先檢查是否在 MAKO 接受的範圍內，再以 `mako-cli validate` 驗證）。倍數設為 0x 會暫停補幀（`frame_generation_enabled = false`）。標示「需重啟」的項目在下次啟動遊戲時生效。預設 profile `mako` 不會在這裡被修改。
+- **遊戲啟動浮水印**：MAKO 助手開著時啟動遊戲，一偵測到 MAKO 已在遊戲中建立畫面，就在右下角顯示執行中的 MAKO 功能約 10 秒後淡出（每次啟動只顯示一次；開啟助手前就在跑的遊戲不顯示）。已裝 MAKO 的遊戲若 90 秒後仍未載入 MAKO，會顯示警告。浮水印用獨立的 X11（XWayland）視窗，才能疊在全螢幕遊戲上，且不搶焦點、滑鼠可穿透；可在工具列的開關關閉。Steam Deck 遊戲模式（gamescope）下不會顯示。
 - **外觀與主題**：深色玻璃質感設計，按鈕與開關採用綠、青、藍、靛、紫漸層；可在工具列切換自動（跟隨系統）、深色、淺色主題。視窗較窄時版面會自動調整，訊息集中在底部可展開收起的「活動紀錄」區。
 - **多國語言**：台灣正體中文、简体中文、English、日本語、Deutsch、Français、Español、Italiano、ไทย、Tiếng Việt、Bahasa Melayu、हिन्दी。首次依系統語系自動選擇，可在右上角切換（即時生效並記住）。Qt 內建文字（右鍵選單等）在前 7 種語言也會翻譯；Qt 官方沒有泰、越、馬來、印地語翻譯，這幾種語言的右鍵選單會是英文。
 

@@ -2,7 +2,7 @@
 
 [English](en.md) · [台灣正體中文](zh_TW.md) · [简体中文](zh_CN.md) · [日本語](ja.md) · [Deutsch](de.md) · [Français](fr.md) · [Español](es.md) · [Italiano](it.md) · [ไทย](th.md) · **Tiếng Việt** · [Bahasa Melayu](ms.md) · [हिन्दी](hi.md)
 
-**Trợ lý MAKO** là công cụ đồ họa cho máy tính Linux, giúp bật hoặc tắt **tạo khung hình của MAKO Renderer (Mako FG)** cho game Steam chỉ bằng một cú nhấp, không cần tự tay sửa bất kỳ tệp cấu hình nào.
+**Trợ lý MAKO** là công cụ đồ họa cho máy tính Linux, giúp bật hoặc tắt **tạo khung hình của MAKO Renderer** cho game Steam chỉ bằng một cú nhấp, không cần tự tay sửa bất kỳ tệp cấu hình nào.
 
 ## Dành cho ai
 
@@ -26,7 +26,7 @@ Hãy tự làm trước những việc sau:
 2. **Mở MAKO UI một lần** để tạo cấu hình mặc định. Bước này tạo `~/.config/mako-render/conf.toml` và hồ sơ mặc định `mako`. Mọi hồ sơ game mà Trợ lý MAKO tạo đều được sao chép từ hồ sơ mặc định này.
 3. **Cài Steam.** Hỗ trợ bản gốc (`~/.local/share/Steam`, `~/.steam`) cùng các bản Flatpak và Snap.
 
-Hãy chắc chắn đã làm xong tất cả các bước trên và MAKO hoạt động bình thường rồi mới dùng Trợ lý MAKO để cài Mako FG cho game.
+Hãy chắc chắn đã làm xong tất cả các bước trên và MAKO hoạt động bình thường rồi mới dùng Trợ lý MAKO để cài MAKO cho game.
 
 Tùy chọn: **Decky Loader**. Khi đã cài, tùy chọn khởi chạy có thể được áp dụng ngay trong lúc Steam đang chạy mà không cần đóng Steam (xem "Cách ghi tùy chọn khởi chạy" bên dưới).
 
@@ -39,9 +39,9 @@ Tùy chọn: **Decky Loader**. Khi đã cài, tùy chọn khởi chạy có th�
 - Tên game hiển thị theo tên bản địa hóa chính thức của Steam trong ngôn ngữ giao diện và được sắp xếp theo thói quen của ngôn ngữ đó.
 - Mỗi game hiển thị ảnh bìa, tùy chọn khởi chạy hiện tại, hồ sơ MAKO và đường dẫn tệp thực thi được phát hiện.
 
-### 2. "Cài Mako FG" chỉ với một cú nhấp
+### 2. "Bật MAKO" chỉ với một cú nhấp
 
-Khi bạn bấm "Cài Mako FG", công cụ sẽ:
+Khi bạn bấm "Bật MAKO", công cụ sẽ:
 
 - **Thêm tùy chọn khởi chạy** `~/.local/bin/mako-launch %command%` vào tùy chọn khởi chạy Steam của game và **giữ nguyên các thiết lập cũ**. Ví dụ `FOO=1 %command% -dx11` sẽ thành `FOO=1 ~/.local/bin/mako-launch %command% -dx11`.
 - **Phát hiện đúng tệp thực thi của game** dựa trên thông tin ứng dụng của Steam. Công cụ xử lý được trình khởi chạy (khi đó sẽ tìm chương trình game thật trong thư mục cài đặt) và tệp `*-Shipping.exe` của Unreal Engine, đồng thời bỏ qua các chương trình phụ trợ thường gặp.
@@ -89,23 +89,23 @@ Khi game đang chạy, thẻ của game hiển thị các tính năng MAKO đang
 - **Các lớp khác**: vkBasalt, Zink, âm thanh ALSA.
 - **Thay đổi đang chờ áp dụng**, như "cần khởi động lại game" hoặc "cần tạo lại swapchain", cùng các lỗi MAKO báo về.
 
-Nếu game đã cài Mako FG nhưng MAKO không thực sự được nạp, điều đó cũng được hiển thị để bạn dễ tìm ra nguyên nhân.
+Nếu game đã cài MAKO nhưng MAKO không thực sự được nạp, điều đó cũng được hiển thị để bạn dễ tìm ra nguyên nhân.
 
 ### 9. Thiết lập MAKO cho từng game
 
 Thẻ của mỗi game có một nút mũi tên ở đầu bên phải. Bấm vào sẽ mở ngay bên dưới phần **Thiết lập MAKO** của game đó, với các tùy chọn giống MAKO UI:
 
-- **Tạo khung hình**: hệ số cố định hoặc chế độ Thích ứng, Hệ số / Hệ số tối đa (0x tạm dừng tạo khung hình mà không xóa gì), tỷ lệ Flow và các chế độ hiệu năng. Dự phòng GPU chừa 5–20% GPU khi tạo khung hình (MAKO Renderer 4.6, GPU AMD).
+- **Tạo khung hình**: hệ số cố định hoặc chế độ Thích ứng, Hệ số / Hệ số tối đa (0x tạm dừng tạo khung hình mà không xóa gì), tỷ lệ Flow và các chế độ hiệu năng. Dự phòng GPU chừa 5–20% GPU khi tạo khung hình (MAKO Renderer 4.6, GPU AMD). Với MAKO Renderer 5.0, bạn còn chọn được mô hình tạo khung hình (MAKO FG, LSFG Quality hoặc LSFG Performance; mô hình LSFG cần Lossless Scaling) và chế độ MAKO FG cho MAKO FG.
 - **Thích ứng**: FPS mục tiêu, mức trần ổn định, độ ưu tiên khung hình thật và các tùy chọn nhịp (chỉ hiện ở chế độ Thích ứng). "Theo tần số quét của màn hình" dùng tần số quét của màn hình làm mục tiêu (MAKO Renderer 4.5 trở lên).
 - **Nhịp và giới hạn**: giới hạn FPS gốc, VRR của Gamescope và bảo vệ tần số quét.
 - **Co giãn hình ảnh**: phương pháp co giãn, hệ số, độ sắc nét và siêu lấy mẫu.
-- **HDR và tương thích**: chất lượng HDR (Chất lượng, Cân bằng hoặc Hiệu năng; chỉ dùng khi bật HDR trong MAKO UI) và tương thích số lượng ảnh của swapchain.
+- **HDR và tương thích**: chất lượng HDR (Chất lượng, Cân bằng hoặc Hiệu năng; chỉ dùng khi bật HDR trong MAKO UI) và tương thích số lượng ảnh của swapchain. Hiển thị Mailbox (MAKO Renderer 5.0) giúp sửa game bị treo khi tạo khung hình; cần khởi động lại.
 
 **Thiết lập khi dùng pin và khi cắm điện (MAKO Renderer 4.5 trở lên)**: nếu game có thiết lập riêng cho pin và cắm điện, chọn trong "Đang chỉnh thiết lập cho" giữa "Thiết lập cơ bản", "Cầm tay (pin)" và "Gắn đế (cắm điện)". Bảng hiển thị giá trị của bộ đó, "Áp dụng" chỉ ghi vào bộ đó, và dòng chú thích dưới nút chọn cho biết MAKO đang dùng bộ nào. Hãy áp dụng hoặc bỏ thay đổi trước khi chuyển bộ. Hồ sơ game mới sao chép cả hai bộ từ hồ sơ mặc định.
 
 Mỗi tùy chọn có một dòng giải thích ngắn bên dưới. Các thay đổi được giữ tạm trước, và bảng sẽ cho biết còn bao nhiêu thay đổi chưa áp dụng. Bấm "Áp dụng" để ghi vào hồ sơ MAKO riêng của game, hoặc "Bỏ thay đổi" để trở lại giá trị cũ. Phần lớn thiết lập có hiệu lực ngay khi game đang chạy; các mục có nhãn "Cần khởi động lại" sẽ có hiệu lực ở lần mở game tiếp theo. Các thay đổi chưa áp dụng vẫn được giữ khi quét lại hoặc đổi ngôn ngữ.
 
-Chỉ game có hồ sơ MAKO riêng (sau khi bấm "Cài Mako FG" hoặc "Nhập cấu hình") mới chỉnh được. Hồ sơ mặc định `mako` không bao giờ bị thay đổi ở đây.
+Chỉ game có hồ sơ MAKO riêng (sau khi bấm "Bật MAKO" hoặc "Nhập cấu hình") mới chỉnh được. Hồ sơ mặc định `mako` không bao giờ bị thay đổi ở đây.
 
 ### 10. Lớp phủ khi mở game
 
@@ -113,13 +113,13 @@ Nếu Trợ lý MAKO đang mở khi bạn khởi động game, ngay khi phát hi
 
 - Chỉ hiện một lần mỗi lần mở game, không chiếm tiêu điểm bàn phím hay chuột, và cú nhấp chuột đi xuyên qua.
 - Có thể hiện đè lên game Proton toàn màn hình.
-- Nếu một game đã cài Mako FG vẫn chưa nạp MAKO sau 90 giây kể từ khi mở, sẽ hiện cảnh báo thay thế.
+- Nếu một game đã cài MAKO vẫn chưa nạp MAKO sau 90 giây kể từ khi mở, sẽ hiện cảnh báo thay thế.
 - Có thể tắt bằng công tắc "Lớp phủ khi mở game" trên thanh công cụ.
 
 ### 11. Tìm kiếm và bộ lọc
 
 - Tìm theo tên game (bằng bất kỳ ngôn ngữ nào) hoặc theo App ID.
-- Bộ lọc: tất cả game, đã cài Mako FG, chưa cài Mako FG, chỉ còn cấu hình MAKO, đang chạy.
+- Bộ lọc: tất cả game, đã cài MAKO, chưa cài MAKO, chỉ còn cấu hình MAKO, đang chạy.
 
 ### 12. 12 ngôn ngữ giao diện
 
@@ -139,7 +139,7 @@ Lần mở đầu tiên, ngôn ngữ được chọn theo ngôn ngữ hệ thố
 - `conf.toml` và `localconfig.vdf` của Steam luôn được sao lưu (`*.mako-assistant.bak`) trước mỗi lần thay đổi.
 - Sau khi ghi `conf.toml`, công cụ kiểm tra bằng `mako-cli validate`. Nếu MAKO không chấp nhận, tệp gốc sẽ được tự động khôi phục.
 - Không bao giờ sửa trực tiếp `localconfig.vdf` khi Steam đang chạy.
-- Khi bạn bấm "Cài Mako FG", công cụ trước tiên kiểm tra MAKO Renderer đã được cài (có tệp `~/.local/bin/mako-launch` hoặc `/usr/bin/mako-launch`) và MAKO UI đã tạo cấu hình. Nếu thiếu một trong hai, sẽ không có gì bị thay đổi và bạn được nhắc cài MAKO trước.
+- Khi bạn bấm "Bật MAKO", công cụ trước tiên kiểm tra MAKO Renderer đã được cài (có tệp `~/.local/bin/mako-launch` hoặc `/usr/bin/mako-launch`) và MAKO UI đã tạo cấu hình. Nếu thiếu một trong hai, sẽ không có gì bị thay đổi và bạn được nhắc cài MAKO trước.
 - Giá trị trong bảng thiết lập của từng game được kiểm tra theo phạm vi MAKO chấp nhận trước khi ghi, chỉ ghi vào hồ sơ riêng của game đó và được kiểm tra bằng `mako-cli validate` như mọi thay đổi khác.
 
 ## Cài đặt Trợ lý MAKO
